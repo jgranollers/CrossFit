@@ -23,7 +23,7 @@ public class Equip {
 
     // Conexión con la competición
     @ManyToOne
-    @JoinColumn(name = "competicion_id")
+    @JoinColumn(name = "competicio_id")
     private Competicion competicion;
 
     // Relación con Atletas

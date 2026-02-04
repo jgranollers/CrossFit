@@ -35,7 +35,8 @@ public class Atlete {
     @Column(name = "accepta_politica_privacitat", nullable = false)
     private Boolean acceptaPoliticaPrivacitat = false;
 
-    @Column(name = "equip_id")
-    private Long equipId;
+    @ManyToOne
+    @JoinColumn(name = "equip_id")
+    private Equip equip;
 
 }
