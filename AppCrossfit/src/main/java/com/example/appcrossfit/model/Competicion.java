@@ -29,6 +29,9 @@ public class Competicion {
     @Column(name = "data_fi_inscripcio")
     private LocalDate dataFiInscripcio;
 
+    @Column(nullable = false)
+    private String ubicacio;
+
     @Column(precision = 10, scale = 2)
     private BigDecimal preu;
 

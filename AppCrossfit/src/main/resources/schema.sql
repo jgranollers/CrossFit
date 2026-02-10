@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS competicions (
     tipus VARCHAR(100) NOT NULL,
     data_inici_inscripcio DATE,
     data_fi_inscripcio DATE,
+    ubicacio VARCHAR(255) NOT NULL,
     preu DECIMAL(10, 2),
     activa BOOLEAN DEFAULT true
 );

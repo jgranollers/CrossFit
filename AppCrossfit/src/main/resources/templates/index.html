@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Competición - App</title>
-    <link rel="stylesheet" th:href="@{css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div class="app-container">
     <aside class="sidebar">
-        <h1 class="brand">Competiton</h1>
+        <h1 class="brand">Competition</h1>
         <div class="sidebar-filter">
             <span class="icon">▼</span>
             <input type="text" placeholder="Filtrar">
@@ -17,7 +17,7 @@
         <nav class="menu">
             <a href="#" class="active">Competicions</a>
             <a href="#">Concursants</a>
-            <a href="#">Competicions Passades</a>
+            <a href="#">Resultats Competicions</a>
         </nav>
     </aside>
 
@@ -28,26 +28,29 @@
                 <span class="search-icon">🔍</span>
             </div>
             <div class="user-actions">
+                <div class="profile-icon">⭕</div>
                 <button class="perfil-btn">Perfil</button>
             </div>
         </header>
 
         <section class="content-area">
-            <h1 class="page-title">Competicions</h1>
             <div class="competitions-grid">
                 <article class="comp-card" th:each="competicion : ${competiciones}">
                     <h2 class="comp-title" th:text="${competicion.nom}">NOM DE LA COMPETICIÓ</h2>
-                    <div class="comp-info-box">
-                        <p th:text="${competicion.tipus}">PRESENCIAL</p>
+                    <div class="comp-badges">
+                        <span class="badge" th:text="${competicion.tipus}">3 pars</span>
                     </div>
                     <div class="comp-info-box">
-                        <p th:text="'Inici: ' + ${competicion.dataIniciInscripcio}">LLOC COMPETICIO</p>
+                        <p th:text="${competicion.dataIniciInscripcio}">31/01/2026.</p>
                     </div>
                     <div class="comp-info-box">
-                        <p th:text="'Fi: ' + ${competicion.dataFiInscripcio}">DIES</p>
+                        <p th:text="${competicion.ubicacio != null ? competicion.ubicacio : 'Ubicació no especificada'}">San Fernando, Cádiz, España</p>
                     </div>
                     <div class="comp-info-box">
-                        <p th:text="'Preu: ' + ${competicion.preu} + '€'">PREU</p>
+                        <p th:text="'€' + ${competicion.preu}">€ Gratis</p>
+                    </div>
+                    <div class="comp-footer">
+                        <span class="places">250 PLAZAS LIBRES</span>
                     </div>
                     <button class="join-btn">Apuntar-se</button>
                 </article>
