@@ -9,15 +9,15 @@
 <body>
 <div class="app-container">
     <aside class="sidebar">
-        <h1 class="brand">Competition</h1>
+        <h1 class="brand">Competiton</h1>
         <div class="sidebar-filter">
-            <span class="icon">▼</span>
+            <span class="icon">⚑</span>
             <input type="text" placeholder="Filtrar">
         </div>
         <nav class="menu">
             <a href="#" class="active">Competicions</a>
             <a href="#">Concursants</a>
-            <a href="#">Resultats Competicions</a>
+            <a href="#">Resultat Competicions</a>
         </nav>
     </aside>
 
@@ -25,10 +25,10 @@
         <header class="top-header">
             <div class="search-bar">
                 <input type="text" placeholder="Buscar">
-                <span class="search-icon">🔍</span>
+                <button class="search-btn">🔍</button>
             </div>
             <div class="user-actions">
-                <div class="profile-icon">⭕</div>
+                <div class="profile-icon"></div>
                 <button class="perfil-btn">Perfil</button>
             </div>
         </header>
@@ -36,23 +36,34 @@
         <section class="content-area">
             <div class="competitions-grid">
                 <article class="comp-card" th:each="competicion : ${competiciones}">
-                    <h2 class="comp-title" th:text="${competicion.nom}">NOM DE LA COMPETICIÓ</h2>
-                    <div class="comp-badges">
-                        <span class="badge" th:text="${competicion.tipus}">3 pars</span>
+                    <div class="card-badge">
+                        <span class="badge" th:text="${competicion.tipus}">2 pers</span>
                     </div>
-                    <div class="comp-info-box">
-                        <p th:text="${competicion.dataIniciInscripcio}">31/01/2026.</p>
+
+                    <div class="card-top">
+                        <h2 class="comp-title" th:text="${competicion.nom}">NOM DE LA COMPETICIÓ</h2>
                     </div>
-                    <div class="comp-info-box">
-                        <p th:text="${competicion.ubicacio != null ? competicion.ubicacio : 'Ubicació no especificada'}">San Fernando, Cádiz, España</p>
+
+                    <div class="card-body">
+                        <div class="meta-row">
+                            <span class="meta-icon">📅</span>
+                            <span class="meta-text" th:text="${competicion.dataIniciInscripcio} + ' - ' + ${competicion.dataFiInscripcio}">31/01/2026</span>
+                            <span class="price" th:if="${competicion.preu} != null and ${competicion.preu} &gt; 0" th:text="${competicion.preu} + ' €'">€ 10</span>
+                            <span class="price free" th:if="${competicion.preu} == null or ${competicion.preu} == 0">€ Gratis</span>
+                        </div>
+
+                        <div class="meta-row">
+                            <span class="meta-icon">📍</span>
+                            <span class="meta-text" th:text="${competicion.ubicacio != null ? competicion.ubicacio : 'Ubicació no especificada'}">San Fernando, Cádiz, España</span>
+                        </div>
                     </div>
-                    <div class="comp-info-box">
-                        <p th:text="'€' + ${competicion.preu}">€ Gratis</p>
+
+                    <hr class="card-divider">
+
+                    <div class="card-footer">
+                        <span class="places">60% PLACES LLIURES</span>
+                        <button class="join-btn">Apunta't</button>
                     </div>
-                    <div class="comp-footer">
-                        <span class="places">250 PLAZAS LIBRES</span>
-                    </div>
-                    <button class="join-btn">Apuntar-se</button>
                 </article>
             </div>
         </section>
