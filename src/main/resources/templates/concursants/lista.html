@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concursants - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link active">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Concursants</h1>
+                <a href="/concursants/nuevo" class="btn btn-primary">+ Nou Concursant</a>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="cards-container">
+                <!-- Concursant 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Joan Martínez</h3>
+                        <span class="card-badge badge-green">Actiu</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <div class="info-label">Correu</div>
+                                <div class="info-value">joan@example.com</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <div class="info-label">Teléfono</div>
+                                <div class="info-value">+34 612 345 678</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <div class="info-label">Ubicació</div>
+                                <div class="info-value">Barcelona, España</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <div>
+                                <div class="info-label">Competicions</div>
+                                <div class="info-value">5 inscrits</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary">Veure Detall</button>
+                    </div>
+                </div>
+
+                <!-- Concursant 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Maria López</h3>
+                        <span class="card-badge badge-cyan">Actiu</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <div class="info-label">Correu</div>
+                                <div class="info-value">maria@example.com</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <div class="info-label">Teléfono</div>
+                                <div class="info-value">+34 698 765 432</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <div class="info-label">Ubicació</div>
+                                <div class="info-value">Madrid, España</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <div>
+                                <div class="info-label">Competicions</div>
+                                <div class="info-value">3 inscrits</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary">Veure Detall</button>
+                    </div>
+                </div>
+
+                <!-- Concursant 3 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Carlos García</h3>
+                        <span class="card-badge badge-orange">Actiu</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <div class="info-label">Correu</div>
+                                <div class="info-value">carlos@example.com</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <div class="info-label">Teléfono</div>
+                                <div class="info-value">+34 645 123 456</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <div class="info-label">Ubicació</div>
+                                <div class="info-value">Valencia, España</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <div>
+                                <div class="info-label">Competicions</div>
+                                <div class="info-value">7 inscrits</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary">Veure Detall</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

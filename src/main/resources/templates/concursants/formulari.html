@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulari Concursant - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link active">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Nou Concursant</h1>
+            </div>
+
+            <!-- Form Container -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8 col-xl-6 mx-auto">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <form method="post" th:action="@{/concursants}">
+                                    <!-- Nombre -->
+                                    <div class="form-group">
+                                        <label for="nombre" class="form-label">
+                                            <i class="fas fa-user"></i> Nom
+                                        </label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Escriu el nom del concursant" required>
+                                    </div>
+
+                                    <!-- Apellidos -->
+                                    <div class="form-group">
+                                        <label for="apellidos" class="form-label">
+                                            <i class="fas fa-user"></i> Cognoms
+                                        </label>
+                                        <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Escriu els cognoms">
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="form-group">
+                                        <label for="email" class="form-label">
+                                            <i class="fas fa-envelope"></i> Correu electrònic
+                                        </label>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
+                                    </div>
+
+                                    <!-- Teléfono -->
+                                    <div class="form-group">
+                                        <label for="telefono" class="form-label">
+                                            <i class="fas fa-phone"></i> Teléfono
+                                        </label>
+                                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+34 612 345 678">
+                                    </div>
+
+                                    <!-- Ubicación -->
+                                    <div class="form-group">
+                                        <label for="ubicacion" class="form-label">
+                                            <i class="fas fa-map-marker-alt"></i> Ubicació
+                                        </label>
+                                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="Escriu la ubicació">
+                                    </div>
+
+                                    <!-- Documento de identidad -->
+                                    <div class="form-group">
+                                        <label for="dni" class="form-label">
+                                            <i class="fas fa-id-card"></i> DNI/Passport
+                                        </label>
+                                        <input type="text" class="form-control" id="dni" name="dni" placeholder="Escriu el DNI o pasaport" required>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button type="submit" class="btn btn-primary flex-grow-1">
+                                            <i class="fas fa-save"></i> Guardar
+                                        </button>
+                                        <a href="/concursants" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

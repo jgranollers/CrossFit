@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${llibre.isbn != null ? 'Editar Llibre' : 'Nou Llibre'}">Formulari Llibre</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h3 mb-0">
+                            <i th:class="${llibre.isbn != null ? 'bi bi-pencil' : 'bi bi-plus-circle'}"></i>
+                            <span th:text="${llibre.isbn != null ? 'Editar Llibre' : 'Nou Llibre'}">Formulari Llibre</span>
+                        </h1>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alert per missatges -->
+                        <div id="alertContainer"></div>
+
+                        <form id="llibreForm">
+                            <div class="mb-3">
+                                <label for="isbn" class="form-label">ISBN:</label>
+                                <input type="text" class="form-control" id="isbn" name="isbn" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="titol" class="form-label">Títol:</label>
+                                <input type="text" class="form-control" id="titol" name="titol" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="autor" class="form-label">Autor:</label>
+                                <input type="text" class="form-control" id="autor" name="autor" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoria:</label>
+                                <input type="text" class="form-control" id="categoria" name="categoria" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="preu" class="form-label">Preu (€):</label>
+                                <input type="number" class="form-control" id="preu" name="preu" step="0.01" min="0" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editorial" class="form-label">Editorial:</label>
+                                <input type="text" class="form-control" id="editorial" name="editorial" />
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-save"></i> Desar
+                                </button>
+                                <a href="/llibres" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel·lar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isEditing = false;
+        let originalIsbn = null;
+
+        // Carregar dades si estem editant
+        document.addEventListener('DOMContentLoaded', async () => {
+            const path = window.location.pathname;
+            const match = path.match(/\/llibres\/editar\/(.+)/);
+
+            if (match) {
+                isEditing = true;
+                originalIsbn = match[1];
+                await carregarLlibre(originalIsbn);
+                document.getElementById('isbn').readOnly = true;
+            }
+        });
+
+        // Carregar dades del llibre
+        async function carregarLlibre(isbn) {
+            try {
+                const response = await fetch(`/llibres/api/${isbn}`);
+                if (response.ok) {
+                    const llibre = await response.json();
+                    document.getElementById('isbn').value = llibre.isbn || '';
+                    document.getElementById('titol').value = llibre.titol || '';
+                    document.getElementById('autor').value = llibre.autor || '';
+                    document.getElementById('categoria').value = llibre.categoria || '';
+                    document.getElementById('preu').value = llibre.preu || '';
+                    document.getElementById('editorial').value = llibre.editorial || '';
+                } else {
+                    mostrarAlerta('Error al carregar el llibre', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('Error al carregar el llibre', 'danger');
+            }
+        }
+
+        // Gestionar l'enviament del formulari
+        document.getElementById('llibreForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const llibre = {
+                isbn: document.getElementById('isbn').value,
+                titol: document.getElementById('titol').value,
+                autor: document.getElementById('autor').value,
+                categoria: document.getElementById('categoria').value,
+                preu: parseFloat(document.getElementById('preu').value) || null,
+                editorial: document.getElementById('editorial').value
+            };
+
+            try {
+                let response;
+                if (isEditing) {
+                    response = await fetch(`/llibres/api/${originalIsbn}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(llibre)
+                    });
+                } else {
+                    response = await fetch('/llibres/api', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(llibre)
+                    });
+                }
+
+                if (response.ok) {
+                    mostrarAlerta(isEditing ? 'Llibre actualitzat correctament' : 'Llibre creat correctament', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/llibres';
+                    }, 1500);
+                } else {
+                    mostrarAlerta('Error al desar el llibre', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('Error al desar el llibre', 'danger');
+            }
+        });
+
+        // Mostrar alertes
+        function mostrarAlerta(missatge, tipus) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${tipus} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${missatge}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alert);
+        }
+    </script>
+</body>
+</html>

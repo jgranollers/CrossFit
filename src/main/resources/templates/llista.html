@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Llistat de llibres</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even){background-color: #f9f9f9}
+    </style>
+</head>
+<body>
+<h1>Llistat de llibres</h1>
+<a th:href="@{/}">Inici</a>
+<table>
+    <thead>
+    <tr>
+        <th>ISBN</th>
+        <th>Títol</th>
+        <th>Autor</th>
+        <th>Categoria</th>
+        <th>Preu</th>
+        <th>Editorial</th>
+        <th>Accions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="llibre : ${llibres}">
+        <td th:text="${llibre.isbn}">ISBN</td>
+        <td th:text="${llibre.titol}">Títol</td>
+        <td th:text="${llibre.autor}">Autor</td>
+        <td th:text="${llibre.categoria}">Categoria</td>
+        <td th:text="${llibre.preu}">Preu</td>
+        <td th:text="${llibre.editorial}">Editorial</td>
+        <td>
+            <a th:href="@{'/llibres/' + ${llibre.isbn}}">Veure</a> |
+            <a th:href="@{'/llibres/editar/' + ${llibre.isbn}}">Editar</a> |
+            <a th:href="@{'/llibres/eliminar/' + ${llibre.isbn}}" onclick="return confirm('Estàs segur?')">Eliminar</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botiga de Pagaments - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a href="/pagaments" class="sidebar-link active">
+                    <i class="fas fa-credit-card"></i> Pagaments
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Botiga de Pagaments</h1>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8 col-xl-6 mx-auto">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h2 class="mb-4">
+                                    <i class="fas fa-shopping-cart" style="color: var(--accent-blue); margin-right: 0.5rem;"></i>
+                                    Selecciona un Article per Pagar
+                                </h2>
+
+                                <form id="paymentForm">
+                                    <!-- Seleccionar Producto -->
+                                    <div class="form-group">
+                                        <label for="producto" class="form-label">
+                                            <i class="fas fa-box"></i> Article
+                                        </label>
+                                        <select class="form-control" id="producto" required>
+                                            <option value="">-- Selecciona un article --</option>
+                                            <option value="competicion-1" data-price="10.00">Inscripció Competició BLUEGORILLA WINTER 2026 - €10,00</option>
+                                            <option value="competicion-2" data-price="0.00">Inscripció Competició IV ANIVERSARIO - GRATIS</option>
+                                            <option value="competicion-3" data-price="0.00">Inscripció Competició MID SESION 26 - GRATIS</option>
+                                            <option value="membres-1" data-price="19.99">Membresía Anual - €19,99</option>
+                                            <option value="membres-premium" data-price="49.99">Membresía Premium - €49,99</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Información de Precio -->
+                                    <div class="form-group" id="priceInfo" style="display: none;">
+                                        <div style="background-color: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--accent-blue); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem;">Import a Pagar</div>
+                                            <div id="productPrice" style="color: var(--accent-blue); font-size: 2rem; font-weight: 700;">€0,00</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stripe Card Element -->
+                                    <div class="form-group" id="stripeSection" style="display: none;">
+                                        <label for="card-element" class="form-label">
+                                            <i class="fas fa-credit-card"></i> Dades de Targeta
+                                        </label>
+                                        <div id="card-element" style="padding: 0.75rem; border: 1px solid var(--border-dark); border-radius: 8px; background-color: rgba(255, 255, 255, 0.05);"></div>
+                                        <div id="card-errors" style="color: #ef4444; margin-top: 0.5rem;"></div>
+                                    </div>
+
+                                    <!-- Free Option Message -->
+                                    <div id="freeMessage" style="display: none; background-color: rgba(34, 197, 94, 0.1); border-left: 4px solid var(--accent-green); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; color: var(--accent-green);">
+                                        <i class="fas fa-check"></i> Aquest article és gratuït. No es requereix targeta.
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button type="submit" id="submitBtn" class="btn btn-primary flex-grow-1" disabled>
+                                            <i class="fas fa-lock"></i> Pagar
+                                        </button>
+                                        <a href="/competiciones" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Info Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-top: 2rem;">
+                            <div class="card-body p-4">
+                                <h3 style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-info-circle" style="color: var(--accent-cyan); margin-right: 0.5rem;"></i>
+                                    Informació de Seguretat
+                                </h3>
+                                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                                    Els teus pagaments estan protegits per Stripe, un proveïdor de pagaments segur i de confiança.
+                                    La teva informació de targeta es xifra i es processa de manera segura.
+                                </p>
+                                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-top: 1rem;">
+                                    <i class="fas fa-lock"></i> Connexió segura SSL/TLS
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Configuración de Stripe
+        const stripe = Stripe('pk_test_51234567890123456789'); // Cambiar con clave pública real
+        let elements, cardElement;
+
+        document.getElementById('producto').addEventListener('change', function() {
+            const priceInfo = document.getElementById('priceInfo');
+            const stripeSection = document.getElementById('stripeSection');
+            const freeMessage = document.getElementById('freeMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const productPrice = document.getElementById('productPrice');
+
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                const price = parseFloat(selectedOption.getAttribute('data-price'));
+
+                if (price === 0) {
+                    // Producto gratis
+                    priceInfo.style.display = 'block';
+                    productPrice.textContent = 'GRATUÏT';
+                    productPrice.style.color = 'var(--accent-green)';
+                    stripeSection.style.display = 'none';
+                    freeMessage.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Completar Inscripció';
+                } else {
+                    // Producto de pago
+                    priceInfo.style.display = 'block';
+                    productPrice.textContent = '€' + price.toFixed(2).replace('.', ',');
+                    productPrice.style.color = 'var(--accent-blue)';
+                    stripeSection.style.display = 'block';
+                    freeMessage.style.display = 'none';
+
+                    // Inicializar Stripe si no está inicializado
+                    if (!cardElement) {
+                        initializeStripe();
+                    }
+
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-lock"></i> Pagar';
+                }
+            } else {
+                priceInfo.style.display = 'none';
+                stripeSection.style.display = 'none';
+                freeMessage.style.display = 'none';
+                submitBtn.disabled = true;
+            }
+        });
+
+        function initializeStripe() {
+            elements = stripe.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        color: 'var(--text-light)',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        fontSize: '16px',
+                        '::placeholder': {
+                            color: 'var(--text-muted)',
+                        },
+                    },
+                    invalid: {
+                        color: '#ef4444',
+                    },
+                },
+            });
+            cardElement.mount('#card-element');
+            cardElement.addEventListener('change', function(event) {
+                const displayError = document.getElementById('card-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const producto = document.getElementById('producto').value;
+            alert('Funcionalitat de pagament estará disponible en la versió final.\n\nProducte seleccionat: ' + producto);
+        });
+    </script>
+</body>
+</html>
+        </div>
+
+        <h2 class="mb-4"><i class="bi bi-book-fill"></i> Llibres Disponibles</h2>
+
+        <!-- Alert per missatges -->
+        <div id="alertContainer"></div>
+
+        <div id="llibresContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <!-- Les tarjetes de llibres es carregaran amb JavaScript -->
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregant...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmació de compra -->
+    <div class="modal fade" id="compraModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-cart-check"></i> Confirmar Compra</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalContent">
+                        <p><strong>Llibre:</strong> <span id="modalLlibreTitol"></span></p>
+                        <p><strong>Autor:</strong> <span id="modalLlibreAutor"></span></p>
+                        <p><strong>ISBN:</strong> <span id="modalLlibreIsbn"></span></p>
+                        <p class="fs-4"><strong>Preu:</strong> <span id="modalLlibrePreu" class="text-success"></span></p>
+                        <hr>
+                        <p><strong>Comprador:</strong> <span id="modalUsuariNom"></span></p>
+                    </div>
+                    <div id="loadingPayment" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processant...</span>
+                        </div>
+                        <p class="mt-2">Redirigint a Stripe...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·lar</button>
+                    <button type="button" class="btn btn-success" id="btnConfirmarCompra">
+                        <i class="bi bi-credit-card"></i> Pagar amb Stripe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script th:inline="javascript">
+        const stripePublicKey = [[${stripePublicKey}]];
+        const stripe = Stripe(stripePublicKey);
+
+        let llibreSeleccionat = null;
+        let usuariSeleccionat = null;
+
+        // Carregar usuaris
+        async function carregarUsuaris() {
+            try {
+                const response = await fetch('/pagaments/api/usuaris');
+                const usuaris = await response.json();
+                const select = document.getElementById('usuariSelect');
+
+                usuaris.forEach(usuari => {
+                    const option = document.createElement('option');
+                    option.value = usuari.dni;
+                    option.textContent = `${usuari.nom} (${usuari.dni})`;
+                    option.dataset.nom = usuari.nom;
+                    option.dataset.correu = usuari.correu;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error carregant usuaris:', error);
+                mostrarAlerta('Error al carregar els usuaris', 'danger');
+            }
+        }
+
+        // Carregar llibres
+        async function carregarLlibres() {
+            try {
+                const response = await fetch('/pagaments/api/llibres');
+                const llibres = await response.json();
+                const container = document.getElementById('llibresContainer');
+
+                if (llibres.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center">
+                            <p class="text-muted">No hi ha llibres disponibles per comprar</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = llibres.map(llibre => `
+                    <div class="col">
+                        <div class="card h-100 card-llibre">
+                            <div class="card-body">
+                                <h5 class="card-title">${llibre.titol}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">${llibre.autor || 'Autor desconegut'}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-upc"></i> ${llibre.isbn}<br>
+                                        <i class="bi bi-bookmark"></i> ${llibre.categoria || 'Sense categoria'}<br>
+                                        <i class="bi bi-building"></i> ${llibre.editorial || 'Editorial desconeguda'}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success preu-badge">
+                                    ${llibre.preu ? llibre.preu.toFixed(2) + ' €' : 'Sense preu'}
+                                </span>
+                                <button
+                                    class="btn btn-primary"
+                                    onclick="seleccionarLlibre('${llibre.isbn}', '${escapeJs(llibre.titol)}', '${escapeJs(llibre.autor || '')}', ${llibre.preu || 0})"
+                                    ${!llibre.preu || llibre.preu <= 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-cart-plus"></i> Comprar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error carregant llibres:', error);
+                mostrarAlerta('Error al carregar els llibres', 'danger');
+            }
+        }
+
+        function escapeJs(str) {
+            return str ? str.replace(/'/g, "\\'").replace(/"/g, '\\"') : '';
+        }
+
+        function seleccionarLlibre(isbn, titol, autor, preu) {
+            const usuariSelect = document.getElementById('usuariSelect');
+            if (!usuariSelect.value) {
+                mostrarAlerta('Si us plau, selecciona un usuari primer', 'warning');
+                usuariSelect.focus();
+                return;
+            }
+
+            llibreSeleccionat = { isbn, titol, autor, preu };
+            usuariSeleccionat = {
+                dni: usuariSelect.value,
+                nom: usuariSelect.options[usuariSelect.selectedIndex].dataset.nom
+            };
+
+            document.getElementById('modalLlibreTitol').textContent = titol;
+            document.getElementById('modalLlibreAutor').textContent = autor || 'Autor desconegut';
+            document.getElementById('modalLlibreIsbn').textContent = isbn;
+            document.getElementById('modalLlibrePreu').textContent = preu.toFixed(2) + ' €';
+            document.getElementById('modalUsuariNom').textContent = usuariSeleccionat.nom;
+
+            const modal = new bootstrap.Modal(document.getElementById('compraModal'));
+            modal.show();
+        }
+
+        // Confirmar compra i redirigir a Stripe
+        document.getElementById('btnConfirmarCompra').addEventListener('click', async function() {
+            if (!llibreSeleccionat || !usuariSeleccionat) return;
+
+            document.getElementById('modalContent').classList.add('d-none');
+            document.getElementById('loadingPayment').classList.remove('d-none');
+            this.disabled = true;
+
+            try {
+                const response = await fetch('/pagaments/api/crear-sessio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `isbn=${encodeURIComponent(llibreSeleccionat.isbn)}&dni=${encodeURIComponent(usuariSeleccionat.dni)}`
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Redirigir a Stripe Checkout
+                window.location.href = data.url;
+
+            } catch (error) {
+                console.error('Error creant sessió:', error);
+                mostrarAlerta('Error al processar el pagament: ' + error.message, 'danger');
+
+                document.getElementById('modalContent').classList.remove('d-none');
+                document.getElementById('loadingPayment').classList.add('d-none');
+                this.disabled = false;
+
+                bootstrap.Modal.getInstance(document.getElementById('compraModal')).hide();
+            }
+        });
+
+        function mostrarAlerta(missatge, tipus) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipus} alert-dismissible fade show" role="alert">
+                    ${missatge}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        // Carregar dades inicials
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarUsuaris();
+            carregarLlibres();
+        });
+    </script>
+</body>
+</html>

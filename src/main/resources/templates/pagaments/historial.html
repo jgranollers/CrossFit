@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Pagaments - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a href="/pagaments" class="sidebar-link active">
+                    <i class="fas fa-credit-card"></i> Pagaments
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Historial de Pagaments</h1>
+                <a href="/pagaments" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nou Pagament
+                </a>
+            </div>
+
+            <!-- Historial Table -->
+            <div class="container-fluid">
+                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                    <div class="card-body p-4">
+                        <div class="table-responsive">
+                            <table class="table" style="border-color: var(--border-dark);">
+                                <thead style="border-bottom-color: var(--border-dark);">
+                                    <tr>
+                                        <th style="color: var(--text-light);">
+                                            <i class="fas fa-barcode"></i> ID Transacció
+                                        </th>
+                                        <th style="color: var(--text-light);">
+                                            <i class="fas fa-box"></i> Article
+                                        </th>
+                                        <th style="color: var(--text-light);">
+                                            <i class="fas fa-user"></i> Usuari
+                                        </th>
+                                        <th style="color: var(--text-light); text-align: center;">
+                                            <i class="fas fa-euro-sign"></i> Import
+                                        </th>
+                                        <th style="color: var(--text-light);">
+                                            <i class="fas fa-calendar"></i> Data
+                                        </th>
+                                        <th style="color: var(--text-light); text-align: center;">
+                                            <i class="fas fa-flag"></i> Estado
+                                        </th>
+                                        <th style="color: var(--text-light); text-align: center;">
+                                            Accions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Pagament 1 -->
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--text-light);">TXN-2026-00001</td>
+                                        <td style="color: var(--text-light);">Inscripció BLUEGORILLA</td>
+                                        <td style="color: var(--text-light);">Joan Martínez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">€10,00</td>
+                                        <td style="color: var(--text-muted);">15/02/2026 10:30</td>
+                                        <td style="text-align: center;">
+                                            <span style="background-color: rgba(34, 197, 94, 0.2); color: var(--accent-green); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                                                <i class="fas fa-check"></i> Completat
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Pagament 2 -->
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--text-light);">TXN-2026-00002</td>
+                                        <td style="color: var(--text-light);">Membresía Anual</td>
+                                        <td style="color: var(--text-light);">Maria López</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">€19,99</td>
+                                        <td style="color: var(--text-muted);">14/02/2026 15:45</td>
+                                        <td style="text-align: center;">
+                                            <span style="background-color: rgba(34, 197, 94, 0.2); color: var(--accent-green); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                                                <i class="fas fa-check"></i> Completat
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Pagament 3 - Cancelado -->
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--text-light);">TXN-2026-00003</td>
+                                        <td style="color: var(--text-light);">Inscripció IV ANIVERSARIO</td>
+                                        <td style="color: var(--text-light);">Carlos García</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">€0,00 (GRATIS)</td>
+                                        <td style="color: var(--text-muted);">13/02/2026 09:20</td>
+                                        <td style="text-align: center;">
+                                            <span style="background-color: rgba(34, 197, 94, 0.2); color: var(--accent-green); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                                                <i class="fas fa-check"></i> Completat
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Pagament 4 - Cancelado -->
+                                    <tr>
+                                        <td style="color: var(--text-light);">TXN-2026-00004</td>
+                                        <td style="color: var(--text-light);">Membresía Premium</td>
+                                        <td style="color: var(--text-light);">Patricia Sánchez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">€49,99</td>
+                                        <td style="color: var(--text-muted);">12/02/2026 14:15</td>
+                                        <td style="text-align: center;">
+                                            <span style="background-color: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                                                <i class="fas fa-times"></i> Cancel·lat
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
+                <select id="filtreUsuari" class="form-select">
+                    <option value="">-- Tots els usuaris --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Alert per missatges -->
+        <div id="alertContainer"></div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Usuari</th>
+                        <th>Llibre</th>
+                        <th>ISBN</th>
+                        <th>Preu</th>
+                        <th>Estat</th>
+                    </tr>
+                </thead>
+                <tbody id="historialTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Carregant...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Resum -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Compres Completades</h5>
+                        <p class="card-text fs-2" id="totalCompletades">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-hourglass"></i> Pendents</h5>
+                        <p class="card-text fs-2" id="totalPendents">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-currency-euro"></i> Total Recaptat</h5>
+                        <p class="card-text fs-2" id="totalRecaptat">0.00 €</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let totesLesCompres = [];
+
+        // Carregar usuaris per al filtre
+        async function carregarUsuaris() {
+            try {
+                const response = await fetch('/pagaments/api/usuaris');
+                const usuaris = await response.json();
+                const select = document.getElementById('filtreUsuari');
+
+                usuaris.forEach(usuari => {
+                    const option = document.createElement('option');
+                    option.value = usuari.dni;
+                    option.textContent = `${usuari.nom} (${usuari.dni})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error carregant usuaris:', error);
+            }
+        }
+
+        // Carregar historial de compres
+        async function carregarHistorial(dni = '') {
+            try {
+                const url = dni ? `/pagaments/api/historial/${dni}` : '/pagaments/api/historial';
+                const response = await fetch(url);
+                const compres = await response.json();
+                totesLesCompres = compres;
+
+                mostrarCompres(compres);
+                actualitzarResum(compres);
+            } catch (error) {
+                console.error('Error carregant historial:', error);
+                mostrarAlerta('Error al carregar l\'historial', 'danger');
+            }
+        }
+
+        function mostrarCompres(compres) {
+            const tbody = document.getElementById('historialTableBody');
+
+            if (compres.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hi ha compres registrades</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = compres.map(compra => {
+                const estatClass = getEstatClass(compra.estat);
+                const dataFormatada = compra.dataCompra ?
+                    new Date(compra.dataCompra).toLocaleString('ca-ES') : '-';
+
+                return `
+                    <tr>
+                        <td>${compra.id}</td>
+                        <td>${dataFormatada}</td>
+                        <td>${compra.usuari ? compra.usuari.nom : '-'}</td>
+                        <td>${compra.llibre ? compra.llibre.titol : '-'}</td>
+                        <td>${compra.llibre ? compra.llibre.isbn : '-'}</td>
+                        <td>${compra.preuPagat ? compra.preuPagat.toFixed(2) + ' €' : '-'}</td>
+                        <td><span class="badge ${estatClass}">${compra.estat || 'DESCONEGUT'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getEstatClass(estat) {
+            switch (estat) {
+                case 'COMPLETAT': return 'bg-success';
+                case 'PENDENT': return 'bg-warning text-dark';
+                case 'CANCEL·LAT': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function actualitzarResum(compres) {
+            const completades = compres.filter(c => c.estat === 'COMPLETAT');
+            const pendents = compres.filter(c => c.estat === 'PENDENT');
+            const totalRecaptat = completades.reduce((sum, c) => sum + (c.preuPagat || 0), 0);
+
+            document.getElementById('totalCompletades').textContent = completades.length;
+            document.getElementById('totalPendents').textContent = pendents.length;
+            document.getElementById('totalRecaptat').textContent = totalRecaptat.toFixed(2) + ' €';
+        }
+
+        function mostrarAlerta(missatge, tipus) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipus} alert-dismissible fade show" role="alert">
+                    ${missatge}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        // Event listener per al filtre
+        document.getElementById('filtreUsuari').addEventListener('change', function() {
+            carregarHistorial(this.value);
+        });
+
+        // Carregar dades inicials
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarUsuaris();
+            carregarHistorial();
+        });
+    </script>
+</body>
+</html>

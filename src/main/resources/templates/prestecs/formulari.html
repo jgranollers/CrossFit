@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${prestec.id != null ? 'Editar Préstec' : 'Nou Préstec'}">Formulari Préstec</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+        button, .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        button[type="submit"] {
+            background-color: #2ecc71;
+            color: white;
+        }
+        button[type="submit"]:hover {
+            background-color: #27ae60;
+        }
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1 th:text="${prestec.id != null ? '✏️ Editar Préstec' : '➕ Nou Préstec'}">Formulari Préstec</h1>
+
+    <div class="form-container">
+        <form th:action="@{/prestecs/desar}" th:object="${prestec}" method="post">
+            <div class="form-group">
+                <label for="id">Codi:</label>
+                <input type="number" id="id" th:field="*{id}"
+                       th:readonly="${prestec.id != null}" required />
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">Llibre:</label>
+                <select id="isbn" th:field="*{isbn}" required>
+                    <option value="">Selecciona un llibre...</option>
+                    <option th:each="llibre : ${llibres}"
+                            th:value="${llibre.isbn}"
+                            th:text="${llibre.titol + ' (ISBN: ' + llibre.isbn + ')'}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dni">Usuari:</label>
+                <select id="dni" th:field="*{dni}" required>
+                    <option value="">Selecciona un usuari...</option>
+                    <option th:each="usuari : ${usuaris}"
+                            th:value="${usuari.dni}"
+                            th:text="${usuari.nom + ' (DNI: ' + usuari.dni + ')'}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dataPrestec">Data de Préstec:</label>
+                <input type="date" id="dataPrestec" th:field="*{dataPrestec}" required />
+            </div>
+
+            <div class="form-group">
+                <label for="dataRetorn">Data de Retorn:</label>
+                <input type="date" id="dataRetorn" th:field="*{dataRetorn}" />
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="retornat" th:field="*{retornat}" />
+                    <label for="retornat" style="margin-bottom: 0;">Retornat</label>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">💾 Desar</button>
+                <a th:href="@{/prestecs}" class="btn btn-cancel">❌ Cancel·lar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

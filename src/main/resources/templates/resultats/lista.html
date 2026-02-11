@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultats - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link active">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Resultats Competicions</h1>
+            </div>
+
+            <!-- Cards Container -->
+            <div class="container-fluid">
+                <!-- Competición 1 Results -->
+                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
+                    <div class="card-body p-4">
+                        <h2 class="mb-4">
+                            <i class="fas fa-trophy" style="color: var(--accent-orange); margin-right: 0.5rem;"></i>
+                            BLUEGORILLA WINTER 2026
+                        </h2>
+
+                        <div class="table-responsive">
+                            <table class="table" style="border-color: var(--border-dark);">
+                                <thead style="border-bottom-color: var(--border-dark);">
+                                    <tr>
+                                        <th style="color: var(--text-light); width: 50px;">#</th>
+                                        <th style="color: var(--text-light);">Concursant</th>
+                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
+                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
+                                        <td style="color: var(--text-light);">Joan Martínez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">95</td>
+                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
+                                    </tr>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
+                                        <td style="color: var(--text-light);">Maria López</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">87</td>
+                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
+                                    </tr>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥉</td>
+                                        <td style="color: var(--text-light);">Carlos García</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">76</td>
+                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">3r</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competición 2 Results -->
+                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
+                    <div class="card-body p-4">
+                        <h2 class="mb-4">
+                            <i class="fas fa-trophy" style="color: var(--accent-blue); margin-right: 0.5rem;"></i>
+                            IV ANIVERSARIO EL RANCHO
+                        </h2>
+
+                        <div class="table-responsive">
+                            <table class="table" style="border-color: var(--border-dark);">
+                                <thead style="border-bottom-color: var(--border-dark);">
+                                    <tr>
+                                        <th style="color: var(--text-light); width: 50px;">#</th>
+                                        <th style="color: var(--text-light);">Concursant</th>
+                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
+                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
+                                        <td style="color: var(--text-light);">Carlos García</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">92</td>
+                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
+                                    </tr>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
+                                        <td style="color: var(--text-light);">Joan Martínez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">88</td>
+                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
+                                    </tr>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥉</td>
+                                        <td style="color: var(--text-light);">Patricia Sánchez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">79</td>
+                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">3r</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competición 3 Results -->
+                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                    <div class="card-body p-4">
+                        <h2 class="mb-4">
+                            <i class="fas fa-trophy" style="color: var(--accent-green); margin-right: 0.5rem;"></i>
+                            MID SESION 26
+                        </h2>
+
+                        <div class="table-responsive">
+                            <table class="table" style="border-color: var(--border-dark);">
+                                <thead style="border-bottom-color: var(--border-dark);">
+                                    <tr>
+                                        <th style="color: var(--text-light); width: 50px;">#</th>
+                                        <th style="color: var(--text-light);">Concursant</th>
+                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
+                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
+                                        <td style="color: var(--text-light);">Maria López</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">91</td>
+                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
+                                    </tr>
+                                    <tr style="border-bottom-color: var(--border-dark);">
+                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
+                                        <td style="color: var(--text-light);">Patricia Sánchez</td>
+                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">85</td>
+                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detall Concursant - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-filter"></i>
+                Competition
+            </div>
+
+            <div class="sidebar-section">
+                <input type="text" class="filter-input" placeholder="Filtrar...">
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link active">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="avatar"></div>
+                    <button class="btn-profile">Perfil</button>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Joan Martínez</h1>
+                <div>
+                    <a href="/concursants/1/editar" class="btn btn-secondary me-2">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <form method="post" th:action="@{/concursants/1/eliminar}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Estàs segur?')">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Detail Container -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Main Details Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
+                            <div class="card-body p-4">
+                                <h2 class="mb-3">Informació Personal</h2>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <i class="fas fa-envelope fa-lg me-3"></i>
+                                            <div>
+                                                <div class="info-label">Correu</div>
+                                                <div class="info-value">joan@example.com</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <i class="fas fa-phone fa-lg me-3"></i>
+                                            <div>
+                                                <div class="info-label">Teléfono</div>
+                                                <div class="info-value">+34 612 345 678</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <i class="fas fa-map-marker-alt fa-lg me-3"></i>
+                                            <div>
+                                                <div class="info-label">Ubicació</div>
+                                                <div class="info-value">Barcelona, España</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <i class="fas fa-id-card fa-lg me-3"></i>
+                                            <div>
+                                                <div class="info-label">DNI</div>
+                                                <div class="info-value">12345678A</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competiciones Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h2 class="mb-3">Competicions Inscrits</h2>
+
+                                <div class="table-responsive">
+                                    <table class="table" style="border-color: var(--border-dark);">
+                                        <thead style="border-bottom-color: var(--border-dark);">
+                                            <tr>
+                                                <th style="color: var(--text-light);">Competició</th>
+                                                <th style="color: var(--text-light);">Data</th>
+                                                <th style="color: var(--text-light);">Ubicació</th>
+                                                <th style="color: var(--text-light);">Accions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom-color: var(--border-dark);">
+                                                <td style="color: var(--text-light);">BLUEGORILLA WINTER 2026</td>
+                                                <td style="color: var(--text-muted);">31/01/2026</td>
+                                                <td style="color: var(--text-muted);">San Fernando, Cádiz</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-secondary me-1">
+                                                        <i class="fas fa-eye"></i> Veure
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr style="border-bottom-color: var(--border-dark);">
+                                                <td style="color: var(--text-light);">IV ANIVERSARIO EL RANCHO</td>
+                                                <td style="color: var(--text-muted);">31/01/2026</td>
+                                                <td style="color: var(--text-muted);">Unknown</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-secondary me-1">
+                                                        <i class="fas fa-eye"></i> Veure
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Info -->
+                    <div class="col-lg-4">
+                        <!-- Status Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
+                            <div class="card-body p-4">
+                                <h3 class="mb-3">Estado</h3>
+                                <span class="card-badge badge-green">Actiu</span>
+
+                                <div class="mt-4">
+                                    <h5 style="color: var(--text-light);">Estadístiques</h5>
+                                    <div class="mt-3">
+                                        <div style="color: var(--text-muted); font-size: 0.9rem;">Competicions inscrits</div>
+                                        <div style="color: var(--accent-blue); font-size: 1.5rem; font-weight: 700;">5</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
