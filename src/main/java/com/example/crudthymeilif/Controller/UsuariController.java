@@ -1,16 +1,27 @@
 package com.example.crudthymeilif.Controller;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.example.crudthymeilif.Model.Usuari;
 import com.example.crudthymeilif.repository.ConcursantRepository;
 import com.example.crudthymeilif.repository.UsuariRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/usuaris")
@@ -38,11 +49,31 @@ public class UsuariController {
     }
 
     @GetMapping("/editar/{dni}")
-    public String mostrarFormulariEditar(@PathVariable String dni, Model model) {
+    public String mostrarFormulariEditar(@PathVariable String dni, Model model, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        Optional<Usuari> usuariActualOpt = usuariRepository.findByCorreu(authentication.getName());
+        if (usuariActualOpt.isEmpty()) {
+            return "redirect:/perfil";
+        }
+
+        Usuari usuariActual = usuariActualOpt.get();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isOwner = dni.equals(usuariActual.getDni());
+
+        if (!isAdmin && !isOwner) {
+            return "redirect:/perfil";
+        }
+
         Optional<Usuari> u = usuariRepository.findById(dni);
-        if (u.isEmpty()) return "redirect:/usuaris";
+        if (u.isEmpty()) return isAdmin ? "redirect:/usuaris" : "redirect:/perfil";
         model.addAttribute("usuariForm", u.get());
         model.addAttribute("editMode", true);
+        model.addAttribute("canManageRoles", isAdmin);
+        model.addAttribute("returnToProfile", !isAdmin);
         return "usuaris/formulari";
     }
 
@@ -58,7 +89,26 @@ public class UsuariController {
     @PostMapping("/editar/{dni}")
     public String actualitzarUsuariForm(@PathVariable String dni,
                                          @ModelAttribute("usuariForm") Usuari form,
-                                         @RequestParam(required = false) String rolSelect) {
+                                         @RequestParam(required = false) String rolSelect,
+                                         Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        Optional<Usuari> usuariActualOpt = usuariRepository.findByCorreu(authentication.getName());
+        if (usuariActualOpt.isEmpty()) {
+            return "redirect:/perfil";
+        }
+
+        Usuari usuariActual = usuariActualOpt.get();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isOwner = dni.equals(usuariActual.getDni());
+
+        if (!isAdmin && !isOwner) {
+            return "redirect:/perfil";
+        }
+
         Optional<Usuari> existing = usuariRepository.findById(dni);
         if (existing.isEmpty()) return "redirect:/usuaris";
         Usuari u = existing.get();
@@ -66,9 +116,14 @@ public class UsuariController {
         u.setTelefon(form.getTelefon());
         u.setCorreu(form.getCorreu());
         u.setNacionalitat(form.getNacionalitat());
-        if (rolSelect != null && !rolSelect.isEmpty()) u.setRol(rolSelect);
+        if (isAdmin && rolSelect != null && !rolSelect.isEmpty()) u.setRol(rolSelect);
         usuariRepository.save(u);
-        return "redirect:/usuaris/" + dni;
+
+        if (isAdmin) {
+            return "redirect:/usuaris/" + dni;
+        }
+
+        return "redirect:/perfil";
     }
 
     @PostMapping("/{dni}/eliminar")

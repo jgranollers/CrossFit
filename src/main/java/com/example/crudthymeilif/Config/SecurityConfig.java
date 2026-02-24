@@ -23,6 +23,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/competiciones/nuevo").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,  "/competiciones/*/editar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/competiciones", "/competiciones/*/editar", "/competiciones/*/eliminar").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,  "/usuaris/editar/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/usuaris/editar/*").authenticated()
                 .requestMatchers("/usuaris/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,  "/resultats/nou", "/resultats/*/editar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/resultats", "/resultats/*/editar", "/resultats/*/eliminar").hasRole("ADMIN")

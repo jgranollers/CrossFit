@@ -1,20 +1,28 @@
 package com.example.crudthymeilif.Controller;
 
-import com.example.crudthymeilif.Model.Compra;
-import com.example.crudthymeilif.Model.Concursant;
-import com.example.crudthymeilif.Model.Usuari;
-import com.example.crudthymeilif.Service.ConcursantService;
-import com.example.crudthymeilif.repository.CompraRepository;
-import com.example.crudthymeilif.repository.ConcursantRepository;
-import com.example.crudthymeilif.repository.UsuariRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.crudthymeilif.Model.Compra;
+import com.example.crudthymeilif.Model.Concursant;
+import com.example.crudthymeilif.Model.Resultat;
+import com.example.crudthymeilif.Model.Usuari;
+import com.example.crudthymeilif.Service.ConcursantService;
+import com.example.crudthymeilif.repository.CompraRepository;
+import com.example.crudthymeilif.repository.ConcursantRepository;
+import com.example.crudthymeilif.repository.ResultatRepository;
+import com.example.crudthymeilif.repository.UsuariRepository;
 
 @Controller
 @RequestMapping("/concursants")
@@ -32,6 +40,9 @@ public class ConcursantController {
     @Autowired
     private CompraRepository compraRepository;
 
+    @Autowired
+    private ResultatRepository resultatRepository;
+
     @GetMapping
     public String listaConcursants(Model model, Authentication authentication) {
         List<Concursant> concursants = concursantRepository.findAll();
@@ -39,7 +50,6 @@ public class ConcursantController {
         
         // Verificar si el usuario autenticado ya tiene un concursante
         boolean usuarioTieneConcursant = false;
-        Concursant myConcursant = null;
         if (authentication != null && authentication.isAuthenticated()) {
             String correu = authentication.getName();
             Optional<Usuari> usuariOpt = usuariRepository.findByCorreu(correu);
@@ -48,8 +58,7 @@ public class ConcursantController {
                 Optional<Concursant> miConcursant = concursantService.obtenerConcursantDelUsuari(usuarioDni);
                 if (miConcursant.isPresent()) {
                     usuarioTieneConcursant = true;
-                    myConcursant = miConcursant.get();
-                    model.addAttribute("myConcursant", myConcursant);
+                    model.addAttribute("myConcursant", miConcursant.get());
                 }
             }
         }
@@ -74,6 +83,32 @@ public class ConcursantController {
             .filter(c -> "COMPLETAT".equals(c.getEstat()))
             .toList();
         model.addAttribute("compras", compras);
+
+        List<Resultat> historics = resultatRepository.findByConcursant(concursant);
+        long victories = historics.stream()
+            .filter(r -> r.getPosicio() != null && r.getPosicio() == 1)
+            .count();
+        long podis = historics.stream()
+            .filter(r -> r.getPosicio() != null && r.getPosicio() <= 3)
+            .count();
+        long derrotes = historics.stream()
+            .filter(r -> r.getPosicio() != null && r.getPosicio() > 1)
+            .count();
+
+        List<Resultat> historicsRecents = historics.stream()
+            .sorted((a, b) -> {
+                if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                if (a.getCreatedAt() == null) return 1;
+                if (b.getCreatedAt() == null) return -1;
+                return b.getCreatedAt().compareTo(a.getCreatedAt());
+            })
+            .limit(5)
+            .toList();
+
+        model.addAttribute("victories", victories);
+        model.addAttribute("podis", podis);
+        model.addAttribute("derrotes", derrotes);
+        model.addAttribute("historicsRecents", historicsRecents);
 
         // Check if viewing user is owner
         boolean isMyConcursant = false;
