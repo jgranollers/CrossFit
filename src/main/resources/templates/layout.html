@@ -13,8 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto" id="sidebar">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <div class="sidebar-section">
@@ -22,12 +22,19 @@
             </div>
 
             <nav class="sidebar-section">
-                <a href="/competiciones" class="sidebar-link" th:classappend="${activePage == 'competiciones' ? 'active' : ''}">
-                    <i class="fas fa-trophy"></i> Competicions
-                </a>
-                <a href="/concursants" class="sidebar-link" th:classappend="${activePage == 'concursants' ? 'active' : ''}">
-                    <i class="fas fa-users"></i> Concursants
-                </a>
+                <div class="sidebar-link-wrapper">
+                    <a href="/competicions" class="sidebar-link" th:classappend="${activePage == 'competicions' ? 'active' : ''}">
+                        <i class="fas fa-trophy"></i> Competicions
+                    </a>
+                </div>
+                <div class="sidebar-link-wrapper">
+                    <a href="/concursants" class="sidebar-link" th:classappend="${activePage == 'concursants' ? 'active' : ''}">
+                        <i class="fas fa-users"></i> Concursants
+                    </a>
+                    <button type="button" class="btn-add-competition" title="Registra't com a Concursant" data-bs-toggle="modal" data-bs-target="#modalRegistroConcursant" th:if="${usuarioAutenticado and !usuarioTieneConcursant}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
                 <a href="/resultats" class="sidebar-link" th:classappend="${activePage == 'resultats' ? 'active' : ''}">
                     <i class="fas fa-chart-bar"></i> Resultats Competicions
                 </a>
@@ -44,14 +51,71 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <button type="button" class="sidebar-toggle" aria-label="Obrir panell lateral" title="Obrir panell lateral">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
                 </div>
             </div>
 
             <!-- Page Content -->
             <div th:insert="${content}"></div>
         </main>
+    </div>
+
+    <!-- Modal: Registrarse como Concursant -->
+    <div class="modal fade" id="modalRegistroConcursant" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Registra't com a Concursant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" th:action="@{/concursants/mi-concursant}">
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Selecciona la teva categoria de competicó.</p>
+                        
+                        <div class="form-group">
+                            <label for="categoria" class="form-label">
+                                <i class="fas fa-layer-group"></i> Categoria
+                            </label>
+                            <select name="categoria" id="categoria" class="form-control" required>
+                                <option value="" disabled selected>Selecciona una categoría</option>
+                                <option value="RX">RX - Atletes avançats</option>
+                                <option value="SCALED">Scaled - Modificacions permeses</option>
+                                <option value="MASTERS">Masters - 40+ anys</option>
+                                <option value="TEENS">Teens - 14-17 anys</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sexe" class="form-label">
+                                <i class="fas fa-venus-mars"></i> Sexe (opcional)
+                            </label>
+                            <select name="sexe" id="sexe" class="form-control">
+                                <option value="">No especificat</option>
+                                <option value="H">Home</option>
+                                <option value="D">Dona</option>
+                                <option value="ALTRES">Altres</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edat" class="form-label">
+                                <i class="fas fa-birthday-cake"></i> Edat (opcional)
+                            </label>
+                            <input type="number" name="edat" id="edat" class="form-control" min="14" max="120" placeholder="Exemple: 25">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Confirmar Registre</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>

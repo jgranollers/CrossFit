@@ -2,11 +2,139 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ca">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Llistat d'Usuaris</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestió Usuaris - PateixFit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a href="/usuaris" class="sidebar-link active">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-shield-alt me-2"></i>Gestió Usuaris</h1>
+                <a href="/usuaris/nou" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Nou Usuari
+                </a>
+            </div>
+
+            <!-- Users Table Card -->
+            <div class="container-fluid">
+                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                    <div class="card-body p-0">
+                        <div th:if="${#lists.isEmpty(usuaris)}" class="text-center py-5">
+                            <i class="fas fa-users fa-3x mb-3" style="color:var(--text-muted);"></i>
+                            <p style="color:var(--text-muted);">No hi ha usuaris registrats.</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(usuaris)}" class="table-responsive">
+                            <table class="table mb-0" style="border-color:var(--border-dark);">
+                                <thead style="border-bottom: 2px solid var(--border-dark);">
+                                    <tr>
+                                        <th style="color:var(--text-muted);padding:1rem 1.25rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:.06em;">Usuari</th>
+                                        <th style="color:var(--text-muted);padding:1rem 1.25rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:.06em;">Correu</th>
+                                        <th style="color:var(--text-muted);padding:1rem 1.25rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:.06em;">Telèfon</th>
+                                        <th style="color:var(--text-muted);padding:1rem 1.25rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:.06em;">Rol</th>
+                                        <th style="color:var(--text-muted);padding:1rem 1.25rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:.06em;">Accions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="u : ${usuaris}" style="border-bottom: 1px solid var(--border-dark); transition: background 0.15s;"
+                                        onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                                        <td style="padding:0.9rem 1.25rem; vertical-align:middle;">
+                                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                                <!-- Avatar circle -->
+                                                <div style="width:38px;height:38px;border-radius:50%;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                                                    <img th:if="${u.fotoPerfilPath != null}"
+                                                         th:src="'/uploads/' + ${u.fotoPerfilPath}"
+                                                         style="width:100%;height:100%;object-fit:cover;" alt="foto">
+                                                    <i th:unless="${u.fotoPerfilPath != null}" class="fas fa-user" style="color:var(--accent-green);font-size:0.9rem;"></i>
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight:600;color:var(--text-light);" th:text="${u.nom}"></div>
+                                                    <div style="font-size:0.78rem;color:var(--text-muted);" th:text="${u.dni}"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="padding:0.9rem 1.25rem;color:var(--text-muted);vertical-align:middle;" th:text="${u.correu ?: '-'}"></td>
+                                        <td style="padding:0.9rem 1.25rem;color:var(--text-muted);vertical-align:middle;" th:text="${u.telefon ?: '-'}"></td>
+                                        <td style="padding:0.9rem 1.25rem;vertical-align:middle;">
+                                            <span class="card-badge"
+                                                  th:classappend="${u.rol == 'ADMIN'} ? ' badge-blue' : ' badge-green'"
+                                                  th:text="${u.rol ?: 'USUARI'}"></span>
+                                        </td>
+                                        <td style="padding:0.9rem 1.25rem;vertical-align:middle;">
+                                            <div style="display:flex;gap:0.4rem;">
+                                                <a th:href="@{'/usuaris/' + ${u.dni}}" class="btn btn-sm btn-secondary" title="Veure">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{'/usuaris/editar/' + ${u.dni}}" class="btn btn-sm btn-secondary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form th:action="@{'/usuaris/' + ${u.dni} + '/eliminar'}" method="post" style="display:inline;"
+                                                      onsubmit="return confirm('Eliminar l\'usuari ' + /*[[${u.nom}]]*/ '' + '?')">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
 <body>
     <div class="container mt-4">
         <h1 class="mb-4"><i class="bi bi-people"></i> Llistat d'Usuaris</h1>

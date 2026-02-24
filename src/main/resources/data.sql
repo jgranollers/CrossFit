@@ -1,0 +1,2 @@
+-- Data placeholder: All data comes from the database setup script
+-- Executa database_setup.sql per carregat les dades inicials

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detall Competició - Competition</title>
+    <title>Detall Competició - Cardio Criminal</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
@@ -13,12 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
@@ -30,6 +26,9 @@
                 </a>
                 <a href="/resultats" class="sidebar-link">
                     <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
                 </a>
             </nav>
         </aside>
@@ -44,19 +43,26 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
-                <h1 class="page-title">BLUEGORILLA WINTER 2026</h1>
-                <div>
-                    <a href="/competiciones/1/editar" class="btn btn-secondary me-2">
+                <h1 class="page-title" th:text="${competicion != null ? competicion.nom : 'Competició'}">COMPETICIÓ</h1>
+                <div th:if="${competicion != null and isAdmin}">
+                    <a th:href="@{'/competiciones/' + ${competicion.id} + '/editar'}" class="btn btn-secondary me-2">
                         <i class="fas fa-edit"></i> Editar
                     </a>
-                    <form method="post" th:action="@{/competiciones/1/eliminar}" style="display:inline;">
+                    <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/eliminar'}" style="display:inline;">
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Estàs segur?')">
                             <i class="fas fa-trash"></i> Eliminar
                         </button>
@@ -79,16 +85,16 @@
                                             <i class="fas fa-calendar fa-lg me-3"></i>
                                             <div>
                                                 <div class="info-label">Data</div>
-                                                <div class="info-value">31/01/2026</div>
+                                                <div class="info-value" th:text="${competicion != null ? #temporals.format(competicion.dataCompeticio, 'dd/MM/yyyy') : '-'}">-</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="info-item">
-                                            <i class="fas fa-euro-sign fa-lg me-3"></i>
+                                            <i class="fas fa-layer-group fa-lg me-3"></i>
                                             <div>
-                                                <div class="info-label">Preu</div>
-                                                <div class="info-value" style="color: var(--accent-blue); font-size: 1.25rem;">€ 10</div>
+                                                <div class="info-label">Tipus</div>
+                                                <div class="info-value" th:text="${competicion != null ? competicion.tipusCompeticio : '-'}">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -97,10 +103,20 @@
                                 <div class="row mb-4">
                                     <div class="col-md-6">
                                         <div class="info-item">
+                                            <i class="fas fa-euro-sign fa-lg me-3"></i>
+                                            <div>
+                                                <div class="info-label">Preu</div>
+                                                <div class="info-value" style="color: var(--accent-blue); font-size: 1.25rem;" 
+                                                     th:text="${competicion != null ? (competicion.preuInscripcio == null or competicion.preuInscripcio == 0 ? 'Gratis' : '€ ' + competicion.preuInscripcio) : '-'}">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
                                             <i class="fas fa-map-marker-alt fa-lg me-3"></i>
                                             <div>
                                                 <div class="info-label">Ubicació</div>
-                                                <div class="info-value">San Fernando, Cádiz, España</div>
+                                                <div class="info-value" th:text="${competicion != null ? (competicion.localitat ?: '-') : '-'}">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -109,7 +125,7 @@
                                             <i class="fas fa-chair fa-lg me-3"></i>
                                             <div>
                                                 <div class="info-label">Places disponibles</div>
-                                                <div class="info-value">10</div>
+                                                <div class="info-value" th:text="${competicion != null ? (competicion.maxParticipants - numInscritos) : '-'}">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -118,9 +134,8 @@
                                 <hr style="border-color: var(--border-dark);" class="my-4">
 
                                 <h3 class="mb-2">Descripció</h3>
-                                <p style="color: var(--text-muted); line-height: 1.6;">
-                                    Aquesta és una descripció de la competició. Aquí pots afegir més detalles sobre la competició,
-                                    les regles, els premis, etc. El text pot ser tan llarg com necessitis.
+                                <p style="color: var(--text-muted); line-height: 1.6;" th:text="${competicion != null ? (competicion.descripcio ?: 'Sense descripció') : 'Sense descripció'}">
+                                    Sense descripció
                                 </p>
                             </div>
                         </div>
@@ -134,31 +149,31 @@
                                     <table class="table" style="border-color: var(--border-dark);">
                                         <thead style="border-bottom-color: var(--border-dark);">
                                             <tr>
-                                                <th style="color: var(--text-light);">Nom</th>
-                                                <th style="color: var(--text-light);">Correu</th>
-                                                <th style="color: var(--text-light);">Data Inscripció</th>
-                                                <th style="color: var(--text-light);">Accions</th>
+                                                <th style="color: white;">País</th>
+                                                <th style="color: white;">Nom</th>
+                                                <th style="color: white;">Correu</th>
+                                                <th style="color: white;">Data Inscripció</th>
+                                                <th style="color: white;">Estat</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr style="border-bottom-color: var(--border-dark);">
-                                                <td style="color: var(--text-light);">Joan Martínez</td>
-                                                <td style="color: var(--text-muted);">joan@example.com</td>
-                                                <td style="color: var(--text-muted);">15/01/2026</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
+                                            <tr th:if="${compras == null || compras.isEmpty()}" style="border-bottom-color: var(--border-dark);">
+                                                <td colspan="5" style="color: var(--text-muted); text-align: center;">No hi ha inscripcions encara</td>
                                             </tr>
-                                            <tr style="border-bottom-color: var(--border-dark);">
-                                                <td style="color: var(--text-light);">Maria López</td>
-                                                <td style="color: var(--text-muted);">maria@example.com</td>
-                                                <td style="color: var(--text-muted);">16/01/2026</td>
+                                            <tr th:each="compra : ${compras}" style="border-bottom-color: var(--border-dark);">
+                                                <td style="text-align: center;">
+                                                    <img th:if="${compra.usuari != null and compra.usuari.nacionalitat != null}"
+                                                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(compra.usuari.nacionalitat)} + '.png'"
+                                                         th:alt="${compra.usuari.nacionalitat}" width="24" height="18"
+                                                         style="border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                                                </td>
+                                                <td style="color: var(--text-light);" th:text="${compra.concursant != null ? compra.concursant.nom + ' ' + compra.concursant.cognom : compra.usuari.nom}">Nom</td>
+                                                <td style="color: var(--text-muted);" th:text="${compra.concursant != null ? compra.concursant.email : compra.usuari.correu}">correu@example.com</td>
+                                                <td style="color: var(--text-muted);" th:text="${#temporals.format(compra.dataCompra, 'dd/MM/yyyy')}">-</td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
+                                                    <span class="card-badge" 
+                                                          th:classappend="${compra.estat == 'COMPLETAT' ? 'badge-green' : (compra.estat == 'PENDENT' ? 'badge-yellow' : 'badge-red')}"
+                                                          th:text="${compra.estat}">Estat</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -173,15 +188,19 @@
                         <!-- Status Card -->
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
                             <div class="card-body p-4">
-                                <h3 class="mb-3">Estado</h3>
-                                <span class="card-badge badge-green">Activa</span>
+                                <h3 class="mb-3">Estat</h3>
+                                <span class="card-badge" th:classappend="${competicion != null && competicion.estat == 'OBERTA' ? 'badge-green' : 'badge-red'}" 
+                                      th:text="${competicion != null ? competicion.estat : '-'}">-</span>
 
                                 <div class="mt-4">
                                     <h5 style="color: var(--text-light);">Places ocupades</h5>
                                     <div class="places-bar">
-                                        <div class="places-fill" style="width: 60%;"></div>
+                                        <div class="places-fill" th:style="'width: ' + ${porcentajeOcupacion} + '%;'"></div>
                                     </div>
-                                    <div class="places-text">6 de 10 places</div>
+                                    <div class="places-text">
+                                        <span th:text="${numInscritos}">0</span> de 
+                                        <span th:text="${competicion != null ? competicion.maxParticipants : 0}">0</span> places
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -189,9 +208,90 @@
                         <!-- Actions Card -->
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
                             <div class="card-body p-4">
-                                <button class="btn btn-primary w-100 mb-2">
-                                    <i class="fas fa-user-plus"></i> Apunta't
-                                </button>
+                                <!-- Missatges de feedback -->
+                                <div th:if="${success}" class="alert alert-success" role="alert" style="background-color: rgba(0, 255, 136, 0.15); border-color: var(--accent-green); color: var(--accent-green);">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span th:text="${success}">Operació exitosa</span>
+                                </div>
+                                <div th:if="${error}" class="alert alert-danger" role="alert" style="background-color: rgba(255, 0, 0, 0.15); border-color: #dc3545; color: #ff6b6b;">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span th:text="${error}">Error</span>
+                                </div>
+
+                                <!-- Botó inscripció -->
+                                <div th:if="${competicion != null && competicion.estat == 'OBERTA'}">
+                                    <!-- Ja inscrit (COMPLETAT) -->
+                                    <div th:if="${jaInscrit}" class="mb-3">
+                                        <button class="btn btn-success w-100 mb-2" disabled>
+                                            <i class="fas fa-check-circle"></i> Ja estàs inscrit!
+                                        </button>
+                                    </div>
+
+                                    <!-- Inscripció PENDENT: reprendre el pagament -->
+                                    <div th:if="${tenguiPendent}" class="mb-3">
+                                        <div class="alert" style="background-color: rgba(255, 193, 7, 0.15); border-color: #ffc107; color: #ffc107; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                                            <i class="fas fa-clock me-2"></i>
+                                            El teu pagament va quedar pendent. Pots completar-lo ara.
+                                        </div>
+                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
+                                            <button type="submit" class="btn btn-warning w-100">
+                                                <i class="fas fa-credit-card me-2"></i> Completar pagament
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- No té perfil de concursant -->
+                                    <div th:if="${!teConcursant}" class="mb-3">
+                                        <a href="/concursants/nou" class="btn btn-warning w-100 mb-2">
+                                            <i class="fas fa-user-plus"></i> Crea el teu perfil de concursant
+                                        </a>
+                                        <small style="color: var(--text-muted);">Necessites un perfil de concursant per inscriure't.</small>
+                                    </div>
+
+                                    <!-- Pot inscriure's -->
+                                    <div th:if="${teConcursant && !jaInscrit && !tenguiPendent}" class="mb-3">
+                                        <!-- Informació del concursant -->
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="color: var(--accent-green); margin-bottom: 0.5rem;">
+                                                <i class="fas fa-user"></i> Les teves dades
+                                            </h6>
+                                            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                                <div><strong style="color: var(--text-light);">Nom:</strong> <span th:text="${concursantActual != null ? concursantActual.nom + ' ' + concursantActual.cognom : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Categoria:</strong> <span th:text="${concursantActual != null ? concursantActual.categoria : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Sexe:</strong> <span th:text="${concursantActual != null ? concursantActual.sexe : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Edat:</strong> <span th:text="${concursantActual != null ? concursantActual.edat : '-'}">-</span></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Preu i botó -->
+                                        <div style="background: rgba(0, 136, 255, 0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--accent-blue);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="color: var(--text-light);">Preu inscripció:</span>
+                                                <span style="color: var(--accent-blue); font-size: 1.25rem; font-weight: bold;" 
+                                                      th:text="${competicion.preuInscripcio == null || competicion.preuInscripcio == 0 ? 'Gratis' : '€ ' + competicion.preuInscripcio}">-</span>
+                                            </div>
+                                            <div th:if="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0}" 
+                                                 style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                                                <i class="fas fa-lock me-1"></i> Pagament segur amb Stripe
+                                            </div>
+                                        </div>
+
+                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
+                                            <button type="submit" class="btn btn-primary w-100 mb-2" 
+                                                    th:text="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0 ? 'Pagar i Inscriure-me (€ ' + competicion.preuInscripcio + ')' : 'Inscriure-me Gratis'}">
+                                                <i class="fas fa-user-plus"></i> Apunta't
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Competició no oberta -->
+                                <div th:if="${competicion != null && competicion.estat != 'OBERTA'}">
+                                    <button class="btn btn-secondary w-100 mb-2" disabled>
+                                        <i class="fas fa-lock"></i> Inscripcions tancades
+                                    </button>
+                                </div>
+
                                 <button class="btn btn-secondary w-100">
                                     <i class="fas fa-share-alt"></i> Compartir
                                 </button>

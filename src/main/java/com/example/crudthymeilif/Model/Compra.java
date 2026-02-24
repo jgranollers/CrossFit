@@ -16,8 +16,12 @@ public class Compra {
     private Usuari usuari;
 
     @ManyToOne
-    @JoinColumn(name = "isbn_llibre", referencedColumnName = "Isbn")
-    private Llibre llibre;
+    @JoinColumn(name = "competicio_id", referencedColumnName = "id")
+    private Competicion competicio;
+
+    @ManyToOne
+    @JoinColumn(name = "concursant_id", referencedColumnName = "id")
+    private Concursant concursant;
 
     @Column(name = "data_compra")
     private LocalDateTime dataCompra;
@@ -47,12 +51,20 @@ public class Compra {
         this.usuari = usuari;
     }
 
-    public Llibre getLlibre() {
-        return llibre;
+    public Competicion getCompeticio() {
+        return competicio;
     }
 
-    public void setLlibre(Llibre llibre) {
-        this.llibre = llibre;
+    public void setCompeticio(Competicion competicio) {
+        this.competicio = competicio;
+    }
+
+    public Concursant getConcursant() {
+        return concursant;
+    }
+
+    public void setConcursant(Concursant concursant) {
+        this.concursant = concursant;
     }
 
     public LocalDateTime getDataCompra() {

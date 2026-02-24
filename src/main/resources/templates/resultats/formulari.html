@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afegir Resultats - PateixFit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        .medal-label { display: flex; align-items: center; gap: 0.6rem; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .medal-label span { font-size: 1.6rem; }
+        .participants-info {
+            font-size: 0.8rem; color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link active">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-medal me-2"></i>Assignar Guanyadors</h1>
+            </div>
+
+            <!-- Form -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8 col-xl-6 mx-auto">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <form th:action="@{/resultats}" method="post">
+
+                                    <!-- Competition select -->
+                                    <div class="form-group">
+                                        <label for="competicioId" class="form-label">
+                                            <i class="fas fa-trophy"></i> Competició
+                                        </label>
+                                        <select class="form-control" id="competicioId" name="competicioId" required onchange="filterParticipants()">
+                                            <option value="" disabled selected>Selecciona una competició</option>
+                                            <option th:each="comp : ${competicions}"
+                                                    th:value="${comp.id}"
+                                                    th:text="${comp.nom} + ' (' + ${comp.tipusCompeticio} + ')'">
+                                            </option>
+                                        </select>
+                                        <div class="participants-info" id="participantsInfo"></div>
+                                    </div>
+
+                                    <!-- 1st place -->
+                                    <div class="form-group">
+                                        <div class="medal-label"><span>🥇</span> 1r Lloc – Guanyador/a</div>
+                                        <select class="form-control" id="primerConcursantId" name="primerConcursantId">
+                                            <option value="">Sense seleccionar</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 2nd place -->
+                                    <div class="form-group">
+                                        <div class="medal-label"><span>🥈</span> 2n Lloc</div>
+                                        <select class="form-control" id="segonConcursantId" name="segonConcursantId">
+                                            <option value="">Sense seleccionar</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 3rd place -->
+                                    <div class="form-group">
+                                        <div class="medal-label"><span>🥉</span> 3r Lloc</div>
+                                        <select class="form-control" id="tercerConcursantId" name="tercerConcursantId">
+                                            <option value="">Sense seleccionar</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="alert" style="background:rgba(99,102,241,0.10);border:1px solid rgba(99,102,241,0.3);border-radius:8px;color:var(--text-muted);font-size:0.82rem;padding:0.75rem 1rem;">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Només apareixen els concursants inscrits (pagament completat) en la competició seleccionada.
+                                        Guardar <strong>sobreescriurà</strong> els resultats existents.
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-3">
+                                        <button type="submit" class="btn btn-primary flex-grow-1">
+                                            <i class="fas fa-save me-1"></i> Guardar Resultats
+                                        </button>
+                                        <a href="/resultats" class="btn btn-secondary">
+                                            <i class="fas fa-times me-1"></i> Cancel·lar
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Compras data for JS filtering -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const comprasData = /*[[${compras}]]*/ [];
+        /*]]>*/
+
+        // Build lookup: competicioId -> [{id, nom, cognom}]
+        const participantsByComp = {};
+        comprasData.forEach(compra => {
+            if (compra.competicio && compra.concursant) {
+                const cid = compra.competicio.id;
+                if (!participantsByComp[cid]) participantsByComp[cid] = [];
+                // avoid duplicates
+                if (!participantsByComp[cid].find(p => p.id === compra.concursant.id)) {
+                    participantsByComp[cid].push({
+                        id: compra.concursant.id,
+                        nom: compra.concursant.nom,
+                        cognom: compra.concursant.cognom
+                    });
+                }
+            }
+        });
+
+        function filterParticipants() {
+            const compId = document.getElementById('competicioId').value;
+            const participants = participantsByComp[compId] || [];
+            const selects = ['primerConcursantId', 'segonConcursantId', 'tercerConcursantId'];
+
+            selects.forEach(selId => {
+                const sel = document.getElementById(selId);
+                sel.innerHTML = '<option value="">Sense seleccionar</option>';
+                participants.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nom + ' ' + p.cognom;
+                    sel.appendChild(opt);
+                });
+            });
+
+            const info = document.getElementById('participantsInfo');
+            info.textContent = participants.length > 0
+                ? participants.length + ' concursant(s) inscrit(s) en aquesta competició'
+                : 'Cap concursant inscrit amb pagament completat';
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

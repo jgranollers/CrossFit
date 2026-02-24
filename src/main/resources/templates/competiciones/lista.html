@@ -13,12 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
@@ -29,7 +25,10 @@
                     <i class="fas fa-users"></i> Concursants
                 </a>
                 <a href="/resultats" class="sidebar-link">
-                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                    <i class="fas fa-chart-bar"></i> Resultat Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
                 </a>
             </nav>
         </aside>
@@ -44,133 +43,77 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
                 <h1 class="page-title">Competicions</h1>
-                <a href="/competiciones/nuevo" class="btn btn-primary">+ Nova Competició</a>
             </div>
 
             <!-- Cards Grid -->
             <div class="cards-container">
-                <!-- Competición 1 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">BLUEGORILLA WINTER 2026</h3>
-                        <span class="card-badge badge-green">2 pers</span>
+                <!-- Card para crear nueva competición (solo admin) -->
+                <a th:if="${isAdmin}" href="/competiciones/nuevo" class="card card-add-new" style="text-decoration: none; cursor: pointer;">
+                    <div class="card-add-content">
+                        <i class="fas fa-plus card-add-icon"></i>
+                        <h3 class="card-add-title">Nova Competició</h3>
                     </div>
-                    <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <div>
-                                <div class="info-label">Data</div>
-                                <div class="info-value">31/01/2026</div>
-                            </div>
-                        </div>
-                        <div class="price-section">
-                            <div>
-                                <div class="info-label">Preu</div>
-                                <div class="price">€ 10 €</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <div class="info-label">Ubicació</div>
-                                <div class="info-value">San Fernando, Cádiz, España</div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="places-bar">
-                                <div class="places-fill" style="width: 60%;"></div>
-                            </div>
-                            <div class="places-text">60% PLACES LLIURES</div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary">Apunta't</button>
-                    </div>
-                </div>
+                </a>
 
-                <!-- Competición 2 -->
-                <div class="card">
+                <!-- Competiciones desde la BD -->
+                <div th:each="comp : ${competiciones}" class="card">
                     <div class="card-header">
-                        <h3 class="card-title">IV ANIVERSARIO EL RANCHO</h3>
-                        <span class="card-badge badge-cyan">3 pers</span>
+                        <h3 class="card-title" th:text="${comp.nom}">NOM COMPETICIÓ</h3>
+                        <span class="card-badge badge-green" th:text="${comp.estat}">OBERTA</span>
                     </div>
                     <div class="card-content">
                         <div class="info-item">
                             <i class="fas fa-calendar"></i>
                             <div>
                                 <div class="info-label">Data</div>
-                                <div class="info-value">31/01/2026</div>
+                                <div class="info-value" th:text="${#temporals.format(comp.dataCompeticio, 'dd/MM/yyyy')}">31/01/2026</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-layer-group"></i>
+                            <div>
+                                <div class="info-label">Tipus</div>
+                                <div class="info-value" th:text="${comp.tipusCompeticio}">Individual</div>
                             </div>
                         </div>
                         <div class="price-section">
                             <div>
                                 <div class="info-label">Preu</div>
-                                <div class="price">€ Gratis</div>
+                                <div class="price" th:text="${comp.preuInscripcio == null or comp.preuInscripcio == 0 ? 'Gratis' : '€ ' + comp.preuInscripcio}">€ 10</div>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
                                 <div class="info-label">Ubicació</div>
-                                <div class="info-value">?</div>
+                                <div class="info-value" th:text="${comp.localitat ?: '?'}">Ubicació</div>
                             </div>
                         </div>
                         <div>
                             <div class="places-bar">
-                                <div class="places-fill" style="width: 20%;"></div>
+                                <div class="places-fill" th:style="'width: ' + ${porcentajesOcupacion[comp.id]} + '%;'"></div>
                             </div>
-                            <div class="places-text">20% PLACES LLIURES</div>
+                            <div class="places-text">
+                                <span th:text="${inscritos[comp.id]}">0</span> / <span th:text="${comp.maxParticipants}">0</span> PLACES OCUPADES
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary">Apunta't</button>
-                    </div>
-                </div>
-
-                <!-- Competición 3 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">MID SESION 26</h3>
-                        <span class="card-badge badge-orange">1 pers</span>
-                    </div>
-                    <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <div>
-                                <div class="info-label">Data</div>
-                                <div class="info-value">22/12/2026-21/12/2026</div>
-                            </div>
-                        </div>
-                        <div class="price-section">
-                            <div>
-                                <div class="info-label">Preu</div>
-                                <div class="price">€ Gratis</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <div class="info-label">Ubicació</div>
-                                <div class="info-value">?</div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="places-bar">
-                                <div class="places-fill" style="width: 20%;"></div>
-                            </div>
-                            <div class="places-text">20% PLACES LLIURES</div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary">Apunta't</button>
+                        <a th:href="@{'/competiciones/' + ${comp.id}}" class="btn btn-primary">Veure detalls</a>
                     </div>
                 </div>
             </div>

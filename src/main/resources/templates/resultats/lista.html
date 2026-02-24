@@ -3,23 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultats - Competition</title>
+    <title>Resultats Competicions - PateixFit</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        .medal-podium {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .medal-card {
+            flex: 1;
+            min-width: 140px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            transition: transform 0.15s;
+        }
+        .medal-card:hover { transform: translateY(-3px); }
+        .medal-card.gold   { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+        .medal-card.silver { border-color: #94a3b8; background: rgba(148,163,184,0.07); }
+        .medal-card.bronze { border-color: #b45309; background: rgba(180,83,9,0.07); }
+        .medal-img { font-size: 2.5rem; line-height: 1; margin-bottom: 0.4rem; }
+        .medal-pos { font-size: 0.7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .medal-name { font-size: 1rem; font-weight: 700; color: var(--text-light); margin-bottom: 0; }
+        .medal-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .accordion-item {
+            background: var(--card-dark) !important;
+            border: 1px solid var(--border-dark) !important;
+            margin-bottom: 0.75rem;
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
+        .accordion-button {
+            background: var(--card-dark) !important;
+            color: var(--text-light) !important;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.04em;
+        }
+        .accordion-button::after { filter: invert(1); }
+        .accordion-button:not(.collapsed) {
+            background: rgba(99,102,241,0.12) !important;
+            box-shadow: none;
+        }
+        .accordion-body { background: transparent !important; padding: 1.25rem 1.5rem; }
+        .comp-meta { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .comp-meta span { margin-right: 1rem; }
+        .empty-results { text-align: center; padding: 2rem 0; color: var(--text-muted); }
+    </style>
 </head>
 <body>
     <div class="d-flex">
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
-            </div>
 
             <nav class="sidebar-section">
                 <a href="/competiciones" class="sidebar-link">
@@ -30,6 +75,9 @@
                 </a>
                 <a href="/resultats" class="sidebar-link active">
                     <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
                 </a>
             </nav>
         </aside>
@@ -42,139 +90,106 @@
                     <input type="text" placeholder="Buscar">
                     <button type="submit"><i class="fas fa-search"></i></button>
                 </div>
-
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
-                <h1 class="page-title">Resultats Competicions</h1>
+                <h1 class="page-title"><i class="fas fa-chart-bar me-2"></i>Resultats Competicions</h1>
+                <div>
+                    <a th:if="${isAdmin}" href="/resultats/nou" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Afegir Resultats
+                    </a>
+                </div>
             </div>
 
-            <!-- Cards Container -->
-            <div class="container-fluid">
-                <!-- Competición 1 Results -->
-                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">
-                            <i class="fas fa-trophy" style="color: var(--accent-orange); margin-right: 0.5rem;"></i>
-                            BLUEGORILLA WINTER 2026
-                        </h2>
+            <!-- Empty state -->
+            <div th:if="${competicions == null or #lists.isEmpty(competicions)}" class="empty-results">
+                <i class="fas fa-inbox fa-3x mb-3" style="color:var(--text-muted);"></i>
+                <p>No hi ha competicions disponibles.</p>
+            </div>
 
-                        <div class="table-responsive">
-                            <table class="table" style="border-color: var(--border-dark);">
-                                <thead style="border-bottom-color: var(--border-dark);">
-                                    <tr>
-                                        <th style="color: var(--text-light); width: 50px;">#</th>
-                                        <th style="color: var(--text-light);">Concursant</th>
-                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
-                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
-                                        <td style="color: var(--text-light);">Joan Martínez</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">95</td>
-                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
-                                    </tr>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
-                                        <td style="color: var(--text-light);">Maria López</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">87</td>
-                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
-                                    </tr>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥉</td>
-                                        <td style="color: var(--text-light);">Carlos García</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">76</td>
-                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">3r</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <!-- Accordion -->
+            <div class="accordion" id="accordionResults" th:unless="${competicions == null or #lists.isEmpty(competicions)}">
+                <div th:each="comp, iterStat : ${competicions}" class="accordion-item">
+                    <h2 class="accordion-header" th:id="'heading' + ${comp.id}">
+                        <button class="accordion-button"
+                                th:classappend="${iterStat.index > 0 ? ' collapsed' : ''}"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                th:data-bs-target="'#collapse' + ${comp.id}"
+                                th:aria-expanded="${iterStat.index == 0 ? 'true' : 'false'}"
+                                th:aria-controls="'collapse' + ${comp.id}">
+                            <i class="fas fa-trophy me-2" style="color:var(--accent-blue);"></i>
+                            <span th:text="${comp.nom}">Nom Competició</span>
+                            <span class="card-badge badge-blue ms-2" th:text="${comp.tipusCompeticio}"></span>
+                        </button>
+                    </h2>
+                    <div th:id="'collapse' + ${comp.id}"
+                         class="accordion-collapse collapse"
+                         th:classappend="${iterStat.index == 0 ? ' show' : ''}"
+                         th:aria-labelledby="'heading' + ${comp.id}">
+                        <div class="accordion-body">
+                            <!-- Competition meta -->
+                            <div class="comp-meta">
+                                <span th:if="${comp.dataCompeticio != null}">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    <span th:text="${#temporals.format(comp.dataCompeticio, 'dd/MM/yyyy')}"></span>
+                                </span>
+                                <span th:if="${comp.localitat != null and !comp.localitat.isEmpty()}">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    <span th:text="${comp.localitat}"></span>
+                                </span>
+                                <span>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span class="card-badge badge-green" th:text="${comp.estat}"></span>
+                                </span>
+                            </div>
 
-                <!-- Competición 2 Results -->
-                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">
-                            <i class="fas fa-trophy" style="color: var(--accent-blue); margin-right: 0.5rem;"></i>
-                            IV ANIVERSARIO EL RANCHO
-                        </h2>
+                            <!-- Podium -->
+                            <div th:with="rs=${resultatsByComp[comp.id]}">
+                                <div th:if="${rs == null or #lists.isEmpty(rs)}" class="empty-results" style="padding:1rem 0;">
+                                    <i class="fas fa-medal fa-2x mb-2" style="color:var(--text-muted);"></i>
+                                    <p style="margin:0; font-size:0.9rem;">Encara no hi ha resultats per aquesta competició.</p>
+                                    <a th:if="${isAdmin}" th:href="@{/resultats/nou}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-plus me-1"></i> Afegir guanyadors
+                                    </a>
+                                </div>
 
-                        <div class="table-responsive">
-                            <table class="table" style="border-color: var(--border-dark);">
-                                <thead style="border-bottom-color: var(--border-dark);">
-                                    <tr>
-                                        <th style="color: var(--text-light); width: 50px;">#</th>
-                                        <th style="color: var(--text-light);">Concursant</th>
-                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
-                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
-                                        <td style="color: var(--text-light);">Carlos García</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">92</td>
-                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
-                                    </tr>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
-                                        <td style="color: var(--text-light);">Joan Martínez</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">88</td>
-                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
-                                    </tr>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥉</td>
-                                        <td style="color: var(--text-light);">Patricia Sánchez</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">79</td>
-                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">3r</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                                <div th:unless="${rs == null or #lists.isEmpty(rs)}" class="medal-podium">
+                                    <div th:each="r : ${rs}"
+                                         class="medal-card"
+                                         th:classappend="${r.posicio == 1 ? ' gold' : (r.posicio == 2 ? ' silver' : ' bronze')}">
+                                        <div class="medal-img" th:text="${r.posicio == 1 ? '🥇' : (r.posicio == 2 ? '🥈' : '🥉')}"></div>
+                                        <div class="medal-pos" th:text="${r.posicio == 1 ? '1r Lloc' : (r.posicio == 2 ? '2n Lloc' : '3r Lloc')}"></div>
+                                        <div class="medal-name"
+                                             th:text="${r.concursant != null ? (r.concursant.nom + ' ' + r.concursant.cognom) : '-'}">
+                                        </div>
+                                        <div class="medal-sub" th:if="${r.concursant?.usuari?.nacionalitat != null}">
+                                            <img th:src="'https://flagcdn.com/20x15/' + ${#strings.toLowerCase(r.concursant.usuari.nacionalitat)} + '.png'"
+                                                 th:alt="${r.concursant.usuari.nacionalitat}" width="20" height="15"
+                                                 style="border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,0.3); margin-top:0.3rem;">
+                                        </div>
+                                    </div>
+                                </div>
 
-                <!-- Competición 3 Results -->
-                <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
-                    <div class="card-body p-4">
-                        <h2 class="mb-4">
-                            <i class="fas fa-trophy" style="color: var(--accent-green); margin-right: 0.5rem;"></i>
-                            MID SESION 26
-                        </h2>
-
-                        <div class="table-responsive">
-                            <table class="table" style="border-color: var(--border-dark);">
-                                <thead style="border-bottom-color: var(--border-dark);">
-                                    <tr>
-                                        <th style="color: var(--text-light); width: 50px;">#</th>
-                                        <th style="color: var(--text-light);">Concursant</th>
-                                        <th style="color: var(--text-light); text-align: center;">Punts</th>
-                                        <th style="color: var(--text-light); text-align: center;">Posició</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥇</td>
-                                        <td style="color: var(--text-light);">Maria López</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">91</td>
-                                        <td style="color: var(--accent-green); text-align: center; font-weight: 600;">1r</td>
-                                    </tr>
-                                    <tr style="border-bottom-color: var(--border-dark);">
-                                        <td style="color: var(--accent-orange); font-weight: 700; font-size: 1.2rem;">🥈</td>
-                                        <td style="color: var(--text-light);">Patricia Sánchez</td>
-                                        <td style="color: var(--accent-blue); text-align: center; font-weight: 600;">85</td>
-                                        <td style="color: var(--text-muted); text-align: center; font-weight: 600;">2n</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                <!-- Admin edit link -->
+                                <div th:if="${isAdmin and rs != null and !#lists.isEmpty(rs)}" style="margin-top:1rem;">
+                                    <a href="/resultats/nou" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-edit me-1"></i> Editar resultats
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

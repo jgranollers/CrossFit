@@ -1,14 +1,14 @@
 :root {
-    --primary-dark: #1a1f4d;
-    --primary-darker: #0f1333;
-    --accent-blue: #6366f1;
+    --primary-dark: #1c2120;
+    --primary-darker: #141918;
+    --accent-blue: #4ade80;
     --accent-orange: #f97316;
     --accent-green: #22c55e;
-    --accent-cyan: #06b6d4;
-    --text-light: #f5f5f5;
-    --text-muted: #a0aec0;
-    --border-dark: #2d3459;
-    --card-dark: #1e2447;
+    --accent-cyan: #34d399;
+    --text-light: #f0f4f0;
+    --text-muted: #8fa89a;
+    --border-dark: #2e3c38;
+    --card-dark: #1f2a27;
 }
 
 * {
@@ -21,6 +21,11 @@ body {
     background-color: var(--primary-darker);
     color: var(--text-light);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Títulos globales */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-light) !important;
 }
 
 /* Navbar */
@@ -89,16 +94,54 @@ body {
 }
 
 .sidebar-link:hover {
-    background-color: rgba(99, 102, 241, 0.1);
+    background-color: rgba(74, 222, 128, 0.1);
     color: var(--accent-blue);
     border-left-color: var(--accent-blue);
 }
 
 .sidebar-link.active {
-    background-color: rgba(99, 102, 241, 0.1);
+    background-color: rgba(74, 222, 128, 0.1);
     color: var(--accent-blue);
     border-left-color: var(--accent-blue);
     font-weight: 600;
+}
+
+.sidebar-link-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.sidebar-link-wrapper .sidebar-link {
+    flex: 1;
+}
+
+.btn-add-competition {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(34, 197, 94, 0.3);
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    color: rgba(34, 197, 94, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-add-competition:hover {
+    background-color: rgba(34, 197, 94, 0.5);
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.btn-add-competition i {
+    font-size: 0.9rem;
 }
 
 .filter-input {
@@ -119,7 +162,7 @@ body {
     background-color: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-blue);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
 }
 
 /* Main content */
@@ -196,13 +239,44 @@ body {
     gap: 1rem;
 }
 
+.sidebar-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-dark);
+    color: var(--text-light);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    background-color: rgba(74, 222, 128, 0.1);
+}
+
 .avatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid var(--text-muted);
+    background-color: rgba(74, 222, 128, 0.1);
+    border: 2px solid var(--accent-green);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.avatar:hover {
+    border-color: var(--accent-blue);
+    background-color: rgba(74, 222, 128, 0.2);
+    transform: scale(1.05);
 }
 
 .btn-profile {
@@ -243,13 +317,86 @@ body {
 .card:hover {
     transform: translateY(-5px);
     border-color: var(--accent-blue);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 10px 30px rgba(74, 222, 128, 0.2);
+}
+
+/* Card para añadir nueva competición */
+.card-add-new {
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
+    border: 2px dashed var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    transition: all 0.3s ease;
+}
+
+.card-add-new:hover {
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(52, 211, 153, 0.2) 100%);
+    border-color: var(--accent-blue);
+    box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* Card destacado - Mi Concursant */
+.card[style*="border: 2px solid"] {
+    box-shadow: 0 0 25px rgba(74, 222, 128, 0.25), 
+                0 0 10px rgba(74, 222, 128, 0.1) inset !important;
+    background: linear-gradient(135deg, var(--card-dark) 0%, rgba(74, 222, 128, 0.05) 100%) !important;
+}
+
+.card-add-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.card-add-icon {
+    font-size: 4rem;
+    color: var(--accent-green);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.card-add-new:hover .card-add-icon {
+    color: var(--accent-blue);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.card-add-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-green);
+    transition: color 0.3s ease;
+}
+
+.card-add-new:hover .card-add-title {
+    color: var(--accent-blue);
 }
 
 .card-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
     border-bottom: 1px solid var(--border-dark);
+}
+
+.concursant-header-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.concursant-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.3) 0%, rgba(249, 115, 22, 0.3) 100%);
+    border: 2px solid var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--accent-blue);
+    flex-shrink: 0;
 }
 
 .card-title {
@@ -274,6 +421,11 @@ body {
     color: var(--accent-green);
 }
 
+.badge-blue {
+    background-color: rgba(74, 222, 128, 0.2);
+    color: var(--accent-blue);
+}
+
 .badge-cyan {
     background-color: rgba(6, 182, 212, 0.2);
     color: var(--accent-cyan);
@@ -282,6 +434,16 @@ body {
 .badge-orange {
     background-color: rgba(249, 115, 22, 0.2);
     color: var(--accent-orange);
+}
+
+.badge-yellow {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.badge-red {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
 }
 
 .card-content {
@@ -360,6 +522,92 @@ body {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Name pinned at bottom of concursant card */
+.card-name-bottom {
+    padding: 0.85rem 1.25rem 0.6rem;
+    text-align: center;
+    border-top: 1px solid var(--border-dark);
+    background: rgba(0,0,0,0.15);
+    margin-top: auto;
+}
+
+.card-name-bottom h3 {
+    color: var(--text-light);
+    font-size: clamp(0.8rem, 2.2vw, 1.15rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    word-break: break-word;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Custom flag picker */
+.flag-picker-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    cursor: default;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    text-align: left;
+}
+
+.flag-picker-btn.editable-flag {
+    cursor: pointer;
+    border-color: var(--accent-blue);
+}
+
+.flag-picker-btn.editable-flag:hover {
+    background-color: rgba(74, 222, 128, 0.05);
+}
+
+.flag-picker-grid {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: var(--card-dark);
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.flag-picker-grid.open { display: flex; }
+
+.flag-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.7rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.flag-option-btn:hover, .flag-option-btn.selected {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: var(--accent-green);
+}
+
+.flag-option-btn .flag-emoji {
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
 .btn-primary {
     width: 100%;
     padding: 0.75rem 1.5rem;
@@ -376,7 +624,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #4f46e5;
+    background-color: #16a34a;
     transform: scale(1.02);
 }
 
@@ -442,7 +690,13 @@ body {
     background-color: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-blue);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.form-error {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: #fca5a5;
 }
 
 textarea.form-control {
@@ -467,6 +721,323 @@ textarea.form-control {
 
 .btn-close {
     filter: brightness(1.5);
+}
+
+/* Profile Page Styles */
+.profile-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.profile-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.profile-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.profile-avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%);
+    border: 3px solid var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--accent-blue);
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.btn-edit-profile {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-edit-profile:hover {
+    background-color: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+}
+
+.profile-right {
+    background-color: var(--card-dark);
+    border: 1px solid var(--border-dark);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.profile-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-dark);
+}
+
+.profile-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.profile-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profile-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.profile-input::placeholder {
+    color: var(--text-muted);
+}
+
+.profile-input:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.profile-input:read-only {
+    background-color: rgba(255, 255, 255, 0.02);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.profile-input.editable {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: var(--accent-blue);
+}
+
+.btn-copy {
+    padding: 0.5rem 0.75rem;
+    background-color: transparent;
+    border: 1px solid var(--border-dark);
+    color: var(--text-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.btn-copy:hover {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-guardar {
+    background-color: var(--accent-orange);
+    color: white;
+}
+
+.btn-guardar:hover {
+    background-color: #ea5e0d;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+}
+
+.btn-tanca-sessio {
+    background-color: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+}
+
+.btn-tanca-sessio:hover {
+    background-color: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    transform: translateY(-2px);
+}
+
+/* Accordion Styles for Results */
+.accordion {
+    margin-top: 2rem;
+}
+
+.accordion-item {
+    background-color: var(--card-dark);
+    border: 1px solid var(--border-dark);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.accordion-header {
+    margin-bottom: 0;
+}
+
+.accordion-button {
+    background-color: var(--card-dark);
+    color: var(--text-light);
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(74, 222, 128, 0.1);
+    color: var(--accent-blue);
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: var(--border-dark);
+}
+
+.accordion-button::after {
+    filter: brightness(2);
+}
+
+.accordion-body {
+    padding: 1.5rem;
+    background-color: var(--card-dark);
+}
+
+.results-dropdown {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dropdown-header {
+    padding: 1rem 1.5rem;
+    background-color: rgba(74, 222, 128, 0.1);
+    color: var(--text-light);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover {
+    background-color: rgba(74, 222, 128, 0.15);
+}
+
+.dropdown-header i {
+    color: var(--accent-blue);
+    transition: transform 0.3s ease;
+}
+
+.results-list {
+    padding: 1rem 1.5rem;
+}
+
+.result-item {
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-dark);
+    border-radius: 6px;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.result-item:last-child {
+    margin-bottom: 0;
+}
+
+.result-item:hover {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: var(--accent-blue);
+    transform: translateX(5px);
 }
 
 /* Responsive */
@@ -497,40 +1068,92 @@ textarea.form-control {
         gap: 1rem;
     }
 
+    .sidebar-toggle {
+        display: inline-flex;
+    }
+
     .search-box {
         max-width: 100%;
     }
+
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-right {
+        padding: 1.5rem;
+    }
+
+    .profile-title {
+        font-size: 1.5rem;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        font-size: 3rem;
+    }
 }
 
-/* Stripe integration styles */
-.payment-section {
-    background-color: var(--card-dark);
-    border: 1px solid var(--border-dark);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-top: 2rem;
+@media (max-width: 1024px) {
+    .profile-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .profile-left {
+        width: 100%;
+    }
+
+    .btn-edit-profile {
+        max-width: 300px;
+        margin: 0 auto;
+    }
 }
 
-.payment-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
+/* ============ Dark Theme Tables ============ */
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-light);
+    --bs-table-border-color: var(--border-dark);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+    --bs-table-striped-color: var(--text-light);
+    --bs-table-hover-bg: rgba(74, 222, 128, 0.05);
+    --bs-table-hover-color: var(--text-light);
+    border-color: var(--border-dark);
 }
 
-#card-element {
-    padding: 0.75rem;
-    border: 1px solid var(--border-dark);
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-light);
+.table > thead {
+    border-bottom: 2px solid var(--border-dark);
 }
 
-.StripeElement {
-    color: var(--text-light);
+.table > thead > tr > th {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-light) !important;
+    border-bottom-color: var(--border-dark);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
 }
 
-.StripeElement--focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+.table > tbody > tr {
+    border-bottom-color: var(--border-dark);
+}
+
+.table > tbody > tr > td {
+    background-color: transparent;
+    color: var(--text-muted);
+    border-bottom-color: var(--border-dark);
+    padding: 0.75rem 1rem;
 }

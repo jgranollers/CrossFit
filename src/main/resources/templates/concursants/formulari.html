@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulari Concursant - Competition</title>
+    <title>Editar Concursant - Competition</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
@@ -13,12 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
@@ -30,6 +26,9 @@
                 </a>
                 <a href="/resultats" class="sidebar-link">
                     <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
                 </a>
             </nav>
         </aside>
@@ -44,14 +43,21 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
-                <h1 class="page-title">Nou Concursant</h1>
+                <h1 class="page-title" th:text="${concursant != null and concursant.id != null} ? 'Editar Concursant' : 'Nou Concursant'">Editar Concursant</h1>
             </div>
 
             <!-- Form Container -->
@@ -60,21 +66,28 @@
                     <div class="col-lg-8 col-xl-6 mx-auto">
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
                             <div class="card-body p-4">
-                                <form method="post" th:action="@{/concursants}">
-                                    <!-- Nombre -->
+                                <form method="post"
+                                      th:action="${concursant != null and concursant.id != null} ? @{'/concursants/' + ${concursant.id} + '/editar'} : @{/concursants}">
+                                    <!-- Nom -->
                                     <div class="form-group">
-                                        <label for="nombre" class="form-label">
+                                        <label for="nom" class="form-label">
                                             <i class="fas fa-user"></i> Nom
                                         </label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Escriu el nom del concursant" required>
+                                        <input type="text" class="form-control" id="nom" name="nom"
+                                               th:value="${concursant != null} ? ${concursant.nom} : ''"
+                                               placeholder="Escriu el nom del concursant" required
+                                               th:readonly="${concursant != null and concursant.id != null and !isAdmin}">
                                     </div>
 
-                                    <!-- Apellidos -->
+                                    <!-- Cognoms -->
                                     <div class="form-group">
-                                        <label for="apellidos" class="form-label">
+                                        <label for="cognom" class="form-label">
                                             <i class="fas fa-user"></i> Cognoms
                                         </label>
-                                        <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Escriu els cognoms">
+                                        <input type="text" class="form-control" id="cognom" name="cognom"
+                                               th:value="${concursant != null} ? ${concursant.cognom} : ''"
+                                               placeholder="Escriu els cognoms"
+                                               th:readonly="${concursant != null and concursant.id != null and !isAdmin}">
                                     </div>
 
                                     <!-- Email -->
@@ -82,31 +95,58 @@
                                         <label for="email" class="form-label">
                                             <i class="fas fa-envelope"></i> Correu electrònic
                                         </label>
-                                        <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                               th:value="${concursant != null} ? ${concursant.email} : ''"
+                                               placeholder="email@example.com" required
+                                               th:readonly="${concursant != null and concursant.id != null and !isAdmin}">
                                     </div>
 
-                                    <!-- Teléfono -->
+                                    <!-- Telèfon -->
                                     <div class="form-group">
-                                        <label for="telefono" class="form-label">
-                                            <i class="fas fa-phone"></i> Teléfono
+                                        <label for="telefon" class="form-label">
+                                            <i class="fas fa-phone"></i> Telèfon
                                         </label>
-                                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+34 612 345 678">
+                                        <input type="tel" class="form-control" id="telefon" name="telefon"
+                                               th:value="${concursant != null} ? ${concursant.telefon} : ''"
+                                               placeholder="+34 612 345 678"
+                                               th:readonly="${concursant != null and concursant.id != null and !isAdmin}">
                                     </div>
 
-                                    <!-- Ubicación -->
+                                    <!-- Sexe -->
                                     <div class="form-group">
-                                        <label for="ubicacion" class="form-label">
-                                            <i class="fas fa-map-marker-alt"></i> Ubicació
+                                        <label for="sexe" class="form-label">
+                                            <i class="fas fa-venus-mars"></i> Sexe
                                         </label>
-                                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="Escriu la ubicació">
+                                        <select class="form-control" id="sexe" name="sexe" required>
+                                            <option value="" disabled th:selected="${concursant == null or concursant.sexe == null}">Selecciona sexe</option>
+                                            <option value="M" th:selected="${concursant != null and concursant.sexe == 'M'}">Masculí</option>
+                                            <option value="F" th:selected="${concursant != null and concursant.sexe == 'F'}">Femení</option>
+                                            <option value="ALTRES" th:selected="${concursant != null and concursant.sexe == 'ALTRES'}">Altres</option>
+                                        </select>
                                     </div>
 
-                                    <!-- Documento de identidad -->
+                                    <!-- Edat -->
                                     <div class="form-group">
-                                        <label for="dni" class="form-label">
-                                            <i class="fas fa-id-card"></i> DNI/Passport
+                                        <label for="edat" class="form-label">
+                                            <i class="fas fa-birthday-cake"></i> Edat
                                         </label>
-                                        <input type="text" class="form-control" id="dni" name="dni" placeholder="Escriu el DNI o pasaport" required>
+                                        <input type="number" class="form-control" id="edat" name="edat"
+                                               th:value="${concursant != null} ? ${concursant.edat} : ''"
+                                               placeholder="Escriu l'edat" min="10" max="99" required>
+                                    </div>
+
+                                    <!-- Categoria -->
+                                    <div class="form-group">
+                                        <label for="categoria" class="form-label">
+                                            <i class="fas fa-layer-group"></i> Categoria
+                                        </label>
+                                        <select class="form-control" id="categoria" name="categoria">
+                                            <option value="" th:selected="${concursant == null or concursant.categoria == null}">Sense categoria</option>
+                                            <option value="RX" th:selected="${concursant != null and concursant.categoria == 'RX'}">RX</option>
+                                            <option value="SCALED" th:selected="${concursant != null and concursant.categoria == 'SCALED'}">Scaled</option>
+                                            <option value="MASTERS" th:selected="${concursant != null and concursant.categoria == 'MASTERS'}">Masters</option>
+                                            <option value="TEENS" th:selected="${concursant != null and concursant.categoria == 'TEENS'}">Teens</option>
+                                        </select>
                                     </div>
 
                                     <!-- Botones -->
@@ -114,8 +154,8 @@
                                         <button type="submit" class="btn btn-primary flex-grow-1">
                                             <i class="fas fa-save"></i> Guardar
                                         </button>
-                                        <a href="/concursants" class="btn btn-secondary">
-                                            <i class="fas fa-times"></i> Cancelar
+                                        <a th:href="${concursant != null and concursant.id != null} ? @{'/concursants/' + ${concursant.id}} : @{/concursants}" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel·lar
                                         </a>
                                     </div>
                                 </form>

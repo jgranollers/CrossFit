@@ -1,6 +1,7 @@
 package com.example.crudthymeilif.Controller;
 
 import com.example.crudthymeilif.Model.Usuari;
+import com.example.crudthymeilif.repository.ConcursantRepository;
 import com.example.crudthymeilif.repository.UsuariRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +19,77 @@ public class UsuariController {
     @Autowired
     private UsuariRepository usuariRepository;
 
+    @Autowired
+    private ConcursantRepository concursantRepository;
+
+    // ── Thymeleaf views ──────────────────────────────────────────────────────
+
     @GetMapping
     public String mostrarUsuaris(Model model) {
+        model.addAttribute("usuaris", usuariRepository.findAll());
         return "usuaris/llista";
     }
 
     @GetMapping("/nou")
     public String mostrarFormulariNou(Model model) {
-        model.addAttribute("usuari", new Usuari());
+        model.addAttribute("usuariForm", new Usuari());
+        model.addAttribute("editMode", false);
         return "usuaris/formulari";
     }
 
     @GetMapping("/editar/{dni}")
     public String mostrarFormulariEditar(@PathVariable String dni, Model model) {
+        Optional<Usuari> u = usuariRepository.findById(dni);
+        if (u.isEmpty()) return "redirect:/usuaris";
+        model.addAttribute("usuariForm", u.get());
+        model.addAttribute("editMode", true);
         return "usuaris/formulari";
     }
+
+    @PostMapping("/nou")
+    public String crearUsuariForm(@ModelAttribute("usuariForm") Usuari usuari,
+                                   @RequestParam(required = false) String rolSelect) {
+        if (rolSelect != null && !rolSelect.isEmpty()) usuari.setRol(rolSelect);
+        if (usuari.getRol() == null) usuari.setRol("USUARI");
+        usuariRepository.save(usuari);
+        return "redirect:/usuaris";
+    }
+
+    @PostMapping("/editar/{dni}")
+    public String actualitzarUsuariForm(@PathVariable String dni,
+                                         @ModelAttribute("usuariForm") Usuari form,
+                                         @RequestParam(required = false) String rolSelect) {
+        Optional<Usuari> existing = usuariRepository.findById(dni);
+        if (existing.isEmpty()) return "redirect:/usuaris";
+        Usuari u = existing.get();
+        u.setNom(form.getNom());
+        u.setTelefon(form.getTelefon());
+        u.setCorreu(form.getCorreu());
+        u.setNacionalitat(form.getNacionalitat());
+        if (rolSelect != null && !rolSelect.isEmpty()) u.setRol(rolSelect);
+        usuariRepository.save(u);
+        return "redirect:/usuaris/" + dni;
+    }
+
+    @PostMapping("/{dni}/eliminar")
+    public String eliminarUsuariForm(@PathVariable String dni) {
+        if (usuariRepository.existsById(dni)) usuariRepository.deleteById(dni);
+        return "redirect:/usuaris";
+    }
+
+    // Esta ruta DEBE ir al final porque captura cualquier valor
+    @GetMapping("/{dni}")
+    public String mostrarDetall(@PathVariable String dni, Model model) {
+        Optional<Usuari> u = usuariRepository.findById(dni);
+        if (u.isEmpty()) return "redirect:/usuaris";
+        model.addAttribute("usuari", u.get());
+        model.addAttribute("concursant", concursantRepository.findAll().stream()
+                .filter(c -> c.getUsuari() != null && c.getUsuari().getDni().equals(dni))
+                .findFirst().orElse(null));
+        return "usuaris/detall";
+    }
+
+    // ── REST API (retained for compatibility) ────────────────────────────────
 
     @GetMapping("/api")
     @ResponseBody
@@ -73,10 +130,5 @@ public class UsuariController {
         }
         return ResponseEntity.notFound().build();
     }
-
-    // Esta ruta DEBE ir al final porque captura cualquier valor
-    @GetMapping("/{dni}")
-    public String mostrarDetall(@PathVariable String dni, Model model) {
-        return "usuaris/detall";
-    }
 }
+

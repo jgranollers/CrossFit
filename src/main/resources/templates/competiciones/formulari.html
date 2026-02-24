@@ -13,12 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
@@ -44,14 +40,15 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
-                <h1 class="page-title">Nova Competició</h1>
+                <h1 class="page-title" th:text="${competicion.id != null ? 'Editar Competició' : 'Nova Competició'}">Nova Competició</h1>
             </div>
 
             <!-- Form Container -->
@@ -60,53 +57,84 @@
                     <div class="col-lg-8 col-xl-6 mx-auto">
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
                             <div class="card-body p-4">
-                                <form method="post" th:action="@{/competiciones}">
-                                    <!-- Título -->
+                                <form method="post" th:action="@{/competiciones}" th:object="${competicion}">
+                                    <input type="hidden" th:field="*{id}">
+                                    
+                                    <!-- Nom -->
                                     <div class="form-group">
-                                        <label for="titulo" class="form-label">
-                                            <i class="fas fa-heading"></i> Títol
+                                        <label for="nom" class="form-label">
+                                            <i class="fas fa-heading"></i> Nom de la Competició
                                         </label>
-                                        <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Escriu el títol de la competició" required>
+                                        <input type="text" class="form-control" th:field="*{nom}" placeholder="Escriu el nom de la competició" required>
                                     </div>
 
-                                    <!-- Descripción -->
+                                    <!-- Tipus Competició -->
                                     <div class="form-group">
-                                        <label for="descripcion" class="form-label">
+                                        <label for="tipusCompeticio" class="form-label">
+                                            <i class="fas fa-layer-group"></i> Tipus de Competició
+                                        </label>
+                                        <select class="form-control" th:field="*{tipusCompeticio}" required>
+                                            <option value="" disabled th:selected="*{tipusCompeticio} == null">Selecciona un tipus</option>
+                                            <option value="Individual">Individual</option>
+                                            <option value="Equips">Equips</option>
+                                            <option value="Open">Open</option>
+                                            <option value="Masters">Masters</option>
+                                        </select>
+                                        <div class="form-error" th:if="${#fields.hasErrors('tipusCompeticio')}" th:errors="*{tipusCompeticio}"></div>
+                                    </div>
+
+                                    <!-- Descripció -->
+                                    <div class="form-group">
+                                        <label for="descripcio" class="form-label">
                                             <i class="fas fa-align-left"></i> Descripció
                                         </label>
-                                        <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Escriu la descripció de la competició"></textarea>
+                                        <textarea class="form-control" th:field="*{descripcio}" rows="4" placeholder="Escriu la descripció de la competició"></textarea>
                                     </div>
 
-                                    <!-- Fecha -->
+                                    <!-- Data -->
                                     <div class="form-group">
-                                        <label for="fecha" class="form-label">
-                                            <i class="fas fa-calendar"></i> Data
+                                        <label for="dataCompeticio" class="form-label">
+                                            <i class="fas fa-calendar"></i> Data de la Competició
                                         </label>
-                                        <input type="date" class="form-control" id="fecha" name="fecha" required>
+                                        <input type="date" class="form-control" th:field="*{dataCompeticio}" th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                                        <div class="form-error" th:if="${#fields.hasErrors('dataCompeticio')}" th:errors="*{dataCompeticio}"></div>
                                     </div>
 
-                                    <!-- Precio -->
+                                    <!-- Localitat -->
                                     <div class="form-group">
-                                        <label for="precio" class="form-label">
-                                            <i class="fas fa-euro-sign"></i> Preu (€)
+                                        <label for="localitat" class="form-label">
+                                            <i class="fas fa-map-marker-alt"></i> Localitat
                                         </label>
-                                        <input type="number" class="form-control" id="precio" name="precio" step="0.01" placeholder="0.00">
+                                        <input type="text" class="form-control" th:field="*{localitat}" placeholder="Escriu la localitat">
                                     </div>
 
-                                    <!-- Ubicación -->
+                                    <!-- Preu Inscripció -->
                                     <div class="form-group">
-                                        <label for="ubicacion" class="form-label">
-                                            <i class="fas fa-map-marker-alt"></i> Ubicació
+                                        <label for="preuInscripcio" class="form-label">
+                                            <i class="fas fa-euro-sign"></i> Preu d'Inscripció (€)
                                         </label>
-                                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="Escriu la ubicació">
+                                        <input type="number" class="form-control" th:field="*{preuInscripcio}" step="0.01" placeholder="Deixa en blanc per Gratis">
                                     </div>
 
-                                    <!-- Lugares disponibles -->
+                                    <!-- Màxim Participants -->
                                     <div class="form-group">
-                                        <label for="lugares" class="form-label">
-                                            <i class="fas fa-chair"></i> Places disponibles
+                                        <label for="maxParticipants" class="form-label">
+                                            <i class="fas fa-users"></i> Màxim de Participants
                                         </label>
-                                        <input type="number" class="form-control" id="lugares" name="lugares" min="1" required>
+                                        <input type="number" class="form-control" th:field="*{maxParticipants}" min="1" placeholder="100">
+                                    </div>
+
+                                    <!-- Estat -->
+                                    <div class="form-group">
+                                        <label for="estat" class="form-label">
+                                            <i class="fas fa-info-circle"></i> Estat
+                                        </label>
+                                        <select class="form-control" th:field="*{estat}">
+                                            <option value="OBERTA">Oberta</option>
+                                            <option value="TANCADA">Tancada</option>
+                                            <option value="FINALITZADA">Finalitzada</option>
+                                            <option value="CANCEL·LADA">Cancel·lada</option>
+                                        </select>
                                     </div>
 
                                     <!-- Botones -->
@@ -115,7 +143,7 @@
                                             <i class="fas fa-save"></i> Guardar
                                         </button>
                                         <a href="/competiciones" class="btn btn-secondary">
-                                            <i class="fas fa-times"></i> Cancelar
+                                            <i class="fas fa-times"></i> Cancel·lar
                                         </a>
                                     </div>
                                 </form>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Competition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultat Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <!-- Top Bar -->
+            <div class="top-bar mb-4">
+                <div class="profile-section" style="margin-left: auto;">
+                    <button type="button" class="sidebar-toggle" aria-label="Obrir panell lateral" title="Obrir panell lateral">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <div class="avatar profile-avatar-topbar" title="Foto de perfil" style="overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-container">
+                <div class="profile-wrapper">
+                    <!-- Left Side: Avatar and Basic Info -->
+                    <div class="profile-left">
+                        <div class="profile-avatar-section">
+                            <!-- Profile avatar: shows photo if uploaded, otherwise icon -->
+                            <div class="profile-avatar" th:if="${usuari.fotoPerfilPath != null}" style="overflow:hidden;padding:0;">
+                                <img th:src="'/uploads/' + ${usuari.fotoPerfilPath}" alt="Foto de perfil"
+                                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            </div>
+                            <div class="profile-avatar" th:unless="${usuari.fotoPerfilPath != null}">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <!-- Photo upload -->
+                            <form th:action="@{/perfil/foto}" method="post" enctype="multipart/form-data" style="margin-top:0.5rem;">
+                                <label for="fotoInput" style="cursor:pointer;font-size:0.78rem;color:var(--text-muted);border:1px solid var(--border-dark);border-radius:6px;padding:0.25rem 0.65rem;background:rgba(255,255,255,0.05);transition:all 0.2s;">
+                                    <i class="fas fa-camera"></i> Canviar foto
+                                </label>
+                                <input type="file" id="fotoInput" name="foto" accept="image/*" style="display:none;" onchange="this.form.submit()">
+                            </form>
+                            <h2 class="profile-name" th:text="${usuari.nom}">Nom de usuari</h2>
+                            <!-- Admin badge -->
+                            <span th:if="${isAdmin}" class="card-badge badge-blue" style="margin-top:0.3rem;font-size:0.75rem;">
+                                <i class="fas fa-shield-alt"></i> Administrador
+                            </span>
+                            <!-- Flag nationality -->
+                            <img th:if="${usuari.nacionalitat != null}" id="profileBigFlag"
+                                 th:src="'https://flagcdn.com/40x30/' + ${#strings.toLowerCase(usuari.nacionalitat)} + '.png'"
+                                 th:alt="${usuari.nacionalitat}" width="40" height="30"
+                                 style="margin-top: 0.5rem; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                        </div>
+
+                        <!-- Edit Profile Button -->
+                        <button class="btn btn-edit-profile" id="editProfileBtn">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </button>
+                    </div>
+
+                    <!-- Right Side: Profile Details -->
+                    <div class="profile-right">
+                        <div class="profile-header">
+                            <h1 class="profile-title">EL MEU PERFIL</h1>
+                        </div>
+
+                        <form th:action="@{/perfil/actualizar}" method="post" class="profile-form">
+                            <!-- DNI Field -->
+                            <div class="form-group">
+                                <label class="form-label">DNI</label>
+                                <div class="profile-input-group">
+                                    <input type="text" class="profile-input" th:value="${usuari.dni}" readonly>
+                                    <button type="button" class="btn-copy" title="Copiar">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Nom Field -->
+                            <div class="form-group">
+                                <label class="form-label">Nom del usuari</label>
+                                <div class="profile-input-group">
+                                    <input type="text" class="profile-input" name="nom" th:value="${usuari.nom}" readonly>
+                                    <button type="button" class="btn-copy" title="Copiar">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div class="form-group">
+                                <label class="form-label">Correu del usuari</label>
+                                <div class="profile-input-group">
+                                    <input type="email" class="profile-input" th:value="${usuari.correu}" readonly>
+                                    <button type="button" class="btn-copy" title="Copiar">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Telèfon Field -->
+                            <div class="form-group">
+                                <label class="form-label">Telèfon</label>
+                                <div class="profile-input-group">
+                                    <input type="tel" class="profile-input" name="telefon" th:value="${usuari.telefon}" readonly>
+                                    <button type="button" class="btn-copy" title="Copiar">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Nacionalitat Field - Custom Flag Picker -->
+                            <div class="form-group">
+                                <label class="form-label">Nacionalitat</label>
+                                <input type="hidden" name="nacionalitat" id="nacionalitatInput"
+                                       th:value="${usuari.nacionalitat != null ? usuari.nacionalitat : ''}">
+
+                                <!-- Trigger button - shows current selection -->
+                                <button type="button" id="flagPickerBtn" class="flag-picker-btn"
+                                        onclick="toggleFlagPicker()">
+                                    <img id="flagBtnImg" width="24" height="18"
+                                         th:src="${usuari.nacionalitat != null ? 'https://flagcdn.com/24x18/' + #strings.toLowerCase(usuari.nacionalitat) + '.png' : ''}"
+                                         th:alt="${usuari.nacionalitat != null ? usuari.nacionalitat : ''}"
+                                         th:style="${usuari.nacionalitat != null ? 'border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,0.3);' : 'display:none;'}">
+                                    <span id="flagBtnLabel"
+                                          th:text="${usuari.nacionalitat != null ? #strings.toUpperCase(usuari.nacionalitat) : '-- Selecciona un país --'}">-- Selecciona un país --</span>
+                                    <i class="fas fa-chevron-down" style="margin-left:auto; font-size:0.8rem;"></i>
+                                </button>
+
+                                <!-- Flag grid (shown when in edit mode and button clicked) -->
+                                <div id="flagPickerGrid" class="flag-picker-grid">
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('ES','Espanya')"><img src="https://flagcdn.com/24x18/es.png" alt="ES" width="24" height="18" style="border-radius:2px;"> Espanya</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('AD','Andorra')"><img src="https://flagcdn.com/24x18/ad.png" alt="AD" width="24" height="18" style="border-radius:2px;"> Andorra</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('FR','França')"><img src="https://flagcdn.com/24x18/fr.png" alt="FR" width="24" height="18" style="border-radius:2px;"> França</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('PT','Portugal')"><img src="https://flagcdn.com/24x18/pt.png" alt="PT" width="24" height="18" style="border-radius:2px;"> Portugal</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('IT','Itàlia')"><img src="https://flagcdn.com/24x18/it.png" alt="IT" width="24" height="18" style="border-radius:2px;"> Itàlia</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('DE','Alemanya')"><img src="https://flagcdn.com/24x18/de.png" alt="DE" width="24" height="18" style="border-radius:2px;"> Alemanya</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('GB','Regne Unit')"><img src="https://flagcdn.com/24x18/gb.png" alt="GB" width="24" height="18" style="border-radius:2px;"> Regne Unit</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('US','Estats Units')"><img src="https://flagcdn.com/24x18/us.png" alt="US" width="24" height="18" style="border-radius:2px;"> Estats Units</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('MX','Mèxic')"><img src="https://flagcdn.com/24x18/mx.png" alt="MX" width="24" height="18" style="border-radius:2px;"> Mèxic</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('AR','Argentina')"><img src="https://flagcdn.com/24x18/ar.png" alt="AR" width="24" height="18" style="border-radius:2px;"> Argentina</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('BR','Brasil')"><img src="https://flagcdn.com/24x18/br.png" alt="BR" width="24" height="18" style="border-radius:2px;"> Brasil</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('AU','Austràlia')"><img src="https://flagcdn.com/24x18/au.png" alt="AU" width="24" height="18" style="border-radius:2px;"> Austràlia</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('CA','Canadà')"><img src="https://flagcdn.com/24x18/ca.png" alt="CA" width="24" height="18" style="border-radius:2px;"> Canadà</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('NL','Països Baixos')"><img src="https://flagcdn.com/24x18/nl.png" alt="NL" width="24" height="18" style="border-radius:2px;"> Països Baixos</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('BE','Bèlgica')"><img src="https://flagcdn.com/24x18/be.png" alt="BE" width="24" height="18" style="border-radius:2px;"> Bèlgica</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('CH','Suïssa')"><img src="https://flagcdn.com/24x18/ch.png" alt="CH" width="24" height="18" style="border-radius:2px;"> Suïssa</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('SE','Suècia')"><img src="https://flagcdn.com/24x18/se.png" alt="SE" width="24" height="18" style="border-radius:2px;"> Suècia</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('NO','Noruega')"><img src="https://flagcdn.com/24x18/no.png" alt="NO" width="24" height="18" style="border-radius:2px;"> Noruega</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('DK','Dinamarca')"><img src="https://flagcdn.com/24x18/dk.png" alt="DK" width="24" height="18" style="border-radius:2px;"> Dinamarca</button>
+                                    <button type="button" class="flag-option-btn" onclick="selectNacionalitat('PL','Polònia')"><img src="https://flagcdn.com/24x18/pl.png" alt="PL" width="24" height="18" style="border-radius:2px;"> Polònia</button>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="profile-actions">
+                                <button type="submit" class="btn btn-guardar" id="saveChangesBtn">
+                                    <i class="fas fa-save"></i> GUARDAR CANVIS
+                                </button>
+                                <button type="button" class="btn btn-tanca-sessio" onclick="document.getElementById('logoutForm').submit()">
+                                    <i class="fas fa-sign-out-alt"></i> TANCAR SESSIÓ
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Logout form (outside main form to avoid nesting) -->
+                        <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none;"></form>
+
+                        <!-- Pagaments Pendents section -->
+                        <div th:if="${inscripcionsPendents != null and !inscripcionsPendents.isEmpty()}"
+                             style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: 12px;">
+                            <h3 style="color: #ffc107; margin-bottom: 1rem;">
+                                <i class="fas fa-clock me-2"></i> Inscripcions Pendents de Pagament
+                            </h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                                Tens inscripcions que van quedar sense pagar. Pots completar el pagament des d'aquí.
+                            </p>
+                            <div th:each="compra : ${inscripcionsPendents}"
+                                 style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 0.5rem;">
+                                <div>
+                                    <div style="color: var(--text-light); font-weight: 600;" th:text="${compra.competicio?.nom ?: 'Competició desconeguda'}">Competició</div>
+                                    <div style="color: var(--text-muted); font-size: 0.85rem;">
+                                        <span th:text="${compra.competicio?.dataCompeticio != null ? #temporals.format(compra.competicio.dataCompeticio, 'dd/MM/yyyy') : '-'}">Data</span>
+                                        &bull;
+                                        <span style="color: #ffc107;" th:text="'€' + ${compra.preuPagat}">Preu</span>
+                                    </div>
+                                </div>
+                                <form method="post" th:action="@{'/competiciones/' + ${compra.competicio?.id} + '/inscripcio/iniciar'}">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-credit-card me-1"></i> Completar pagament
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const COUNTRIES = {
+            'ES': ['🇪🇸', 'Espanya'],       'AD': ['🇦🇩', 'Andorra'],
+            'FR': ['🇫🇷', 'França'],         'PT': ['🇵🇹', 'Portugal'],
+            'IT': ['🇮🇹', 'Itàlia'],         'DE': ['🇩🇪', 'Alemanya'],
+            'GB': ['🇬🇧', 'Regne Unit'],     'US': ['🇺🇸', 'Estats Units'],
+            'MX': ['🇲🇽', 'Mèxic'],          'AR': ['🇦🇷', 'Argentina'],
+            'BR': ['🇧🇷', 'Brasil'],          'AU': ['🇦🇺', 'Austràlia'],
+            'CA': ['🇨🇦', 'Canadà'],          'NL': ['🇳🇱', 'Països Baixos'],
+            'BE': ['🇧🇪', 'Bèlgica'],         'CH': ['🇨🇭', 'Suïssa'],
+            'SE': ['🇸🇪', 'Suècia'],          'NO': ['🇳🇴', 'Noruega'],
+            'DK': ['🇩🇰', 'Dinamarca'],       'PL': ['🇵🇱', 'Polònia'],
+        };
+
+        let isEditMode = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize flag picker label from stored value
+            const code = document.getElementById('nacionalitatInput').value;
+            if (code && COUNTRIES[code]) {
+                updateFlagBtn(code, COUNTRIES[code][1]);
+                refreshGridSelected(code);
+            }
+
+            setupEventListeners();
+
+            // Close picker when clicking outside
+            document.addEventListener('click', (e) => {
+                const grid = document.getElementById('flagPickerGrid');
+                const btn = document.getElementById('flagPickerBtn');
+                if (grid && !grid.contains(e.target) && !btn.contains(e.target)) {
+                    grid.classList.remove('open');
+                }
+            });
+        });
+
+        function setupEventListeners() {
+            document.getElementById('editProfileBtn').addEventListener('click', toggleEditMode);
+            document.querySelectorAll('.btn-copy').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    const input = e.currentTarget.parentElement.querySelector('input');
+                    if (input) copyToClipboard(input.value, e.currentTarget);
+                });
+            });
+        }
+
+        function updateFlagBtn(code, name) {
+            const img = document.getElementById('flagBtnImg');
+            if (img) {
+                img.src = 'https://flagcdn.com/24x18/' + code.toLowerCase() + '.png';
+                img.alt = code;
+                img.style.display = 'inline';
+            }
+            document.getElementById('flagBtnLabel').textContent = name;
+        }
+
+        function refreshGridSelected(selectedCode) {
+            document.querySelectorAll('.flag-option-btn').forEach(btn => {
+                const oc = btn.getAttribute('onclick') || '';
+                btn.classList.toggle('selected', oc.includes("'" + selectedCode + "'"));
+            });
+        }
+
+        function toggleFlagPicker() {
+            if (!isEditMode) return;
+            document.getElementById('flagPickerGrid').classList.toggle('open');
+        }
+
+        function selectNacionalitat(code, name) {
+            document.getElementById('nacionalitatInput').value = code;
+            updateFlagBtn(code, name);
+            refreshGridSelected(code);
+            document.getElementById('flagPickerGrid').classList.remove('open');
+            // Update big flag below profile name
+            const bigFlag = document.getElementById('profileBigFlag');
+            if (bigFlag) {
+                bigFlag.src = 'https://flagcdn.com/40x30/' + code.toLowerCase() + '.png';
+                bigFlag.alt = code;
+                bigFlag.style.display = 'inline';
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const inputs = document.querySelectorAll('.profile-input');
+            const flagBtn = document.getElementById('flagPickerBtn');
+            const editBtn = document.getElementById('editProfileBtn');
+
+            inputs.forEach(input => {
+                if (input.name) {
+                    input.readOnly = !isEditMode;
+                    input.classList.toggle('editable', isEditMode);
+                }
+            });
+
+            if (flagBtn) {
+                flagBtn.classList.toggle('editable-flag', isEditMode);
+                if (!isEditMode) {
+                    document.getElementById('flagPickerGrid').classList.remove('open');
+                }
+            }
+
+            editBtn.style.display = isEditMode ? 'none' : 'block';
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => { button.innerHTML = orig; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+

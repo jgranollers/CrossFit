@@ -13,23 +13,32 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
                 <a href="/competiciones" class="sidebar-link">
                     <i class="fas fa-trophy"></i> Competicions
                 </a>
-                <a href="/concursants" class="sidebar-link active">
+                <!-- Mostrar el botón + solo si el usuario está autenticado y no tiene concursant -->
+                <div th:if="${usuarioAutenticado and !usuarioTieneConcursant}" class="sidebar-link-wrapper">
+                    <a href="/concursants" class="sidebar-link active">
+                        <i class="fas fa-users"></i> Concursants
+                    </a>
+                    <a href="/concursants/nou" class="btn-add-competition" title="Afegir-me com a Concursant">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+                <!-- Si no, mostrar solo el enlace normal -->
+                <a th:unless="${usuarioAutenticado and !usuarioTieneConcursant}" href="/concursants" class="sidebar-link active">
                     <i class="fas fa-users"></i> Concursants
                 </a>
                 <a href="/resultats" class="sidebar-link">
-                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                    <i class="fas fa-chart-bar"></i> Resultat Competicions
+                </a>
+                <a th:if="${isAdmin}" href="/usuaris" class="sidebar-link">
+                    <i class="fas fa-shield-alt"></i> Gestió Usuaris
                 </a>
             </nav>
         </aside>
@@ -44,140 +53,147 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <button type="button" class="sidebar-toggle" aria-label="Obrir panell lateral" title="Obrir panell lateral">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <img th:if="${currentUserNacionalitat != null and !currentUserNacionalitat.isEmpty()}"
+                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(currentUserNacionalitat)} + '.png'"
+                         th:alt="${currentUserNacionalitat}" width="28" height="21"
+                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                    <a href="/perfil" class="avatar" title="Anar al perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;overflow:hidden;">
+                        <img th:if="${currentUserFoto != null}" th:src="${currentUserFoto}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        <i th:unless="${currentUserFoto != null}" class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
                 </div>
             </div>
 
             <!-- Page Header -->
             <div class="page-header">
                 <h1 class="page-title">Concursants</h1>
-                <a href="/concursants/nuevo" class="btn btn-primary">+ Nou Concursant</a>
             </div>
 
             <!-- Cards Grid -->
             <div class="cards-container">
-                <!-- Concursant 1 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Joan Martínez</h3>
-                        <span class="card-badge badge-green">Actiu</span>
+                <!-- Card para crear nueva concursant (solo si no lo tienes) -->
+                <a th:if="${usuarioAutenticado and !usuarioTieneConcursant}" href="/concursants/nou" class="card card-add-new" style="text-decoration: none; cursor: pointer;">
+                    <div class="card-add-content">
+                        <i class="fas fa-plus card-add-icon"></i>
+                        <h3 class="card-add-title">Afegir-me com a Concursant</h3>
                     </div>
-                    <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div class="info-label">Correu</div>
-                                <div class="info-value">joan@example.com</div>
+                </a>
+
+                <!-- Mi Concursante (Mostrado si tengo uno) -->
+                <div th:if="${usuarioAutenticado and usuarioTieneConcursant}" class="card" style="border: 2px solid var(--accent-blue);">
+                        <div class="card-header">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                                <div class="concursant-avatar" style="border-color: var(--accent-blue);">
+                                    <i class="fas fa-star" style="color: var(--accent-blue);"></i>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; align-items: center;">
+                                    <span class="card-badge badge-blue" th:text="${myConcursant.categoria ?: 'RX'}">RX</span>
+                                    <span class="card-badge badge-green">El meu perfil</span>
+                                    <img th:if="${myConcursant.usuari != null and myConcursant.usuari.nacionalitat != null}"
+                                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(myConcursant.usuari.nacionalitat)} + '.png'"
+                                         th:alt="${myConcursant.usuari.nacionalitat}" width="24" height="18"
+                                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                                </div>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <div class="info-label">Teléfono</div>
-                                <div class="info-value">+34 612 345 678</div>
+                        <div class="card-content">
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <div class="info-label">Correu</div>
+                                    <div class="info-value" th:text="${myConcursant.email ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <div class="info-label">Telèfon</div>
+                                    <div class="info-value" th:text="${myConcursant.telefon ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-venus-mars"></i>
+                                <div>
+                                    <div class="info-label">Sexe</div>
+                                    <div class="info-value" th:text="${myConcursant.sexe ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <div>
+                                    <div class="info-label">Edat</div>
+                                    <div class="info-value" th:text="${myConcursant.edat ?: '-'}">-</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <div class="info-label">Ubicació</div>
-                                <div class="info-value">Barcelona, España</div>
-                            </div>
+                        <div class="card-name-bottom">
+                            <h3 th:text="${myConcursant.nom} + ' ' + ${myConcursant.cognom}">Nom Cognom</h3>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-trophy"></i>
-                            <div>
-                                <div class="info-label">Competicions</div>
-                                <div class="info-value">5 inscrits</div>
-                            </div>
+                        <div class="card-footer">
+                            <a th:href="@{'/concursants/' + ${myConcursant.id}}" class="btn btn-primary">Veure Detall</a>
+                            <a th:href="@{'/concursants/' + ${myConcursant.id} + '/editar'}" class="btn btn-secondary">Editar</a>
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary">Veure Detall</button>
-                    </div>
                 </div>
 
-                <!-- Concursant 2 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Maria López</h3>
-                        <span class="card-badge badge-cyan">Actiu</span>
-                    </div>
-                    <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div class="info-label">Correu</div>
-                                <div class="info-value">maria@example.com</div>
+                <!-- Altres Concursants -->
+                <div th:each="concursant : ${concursants}" th:if="${!usuarioAutenticado or !usuarioTieneConcursant or (myConcursant != null and myConcursant.id != concursant.id)}" class="card">
+                        <div class="card-header">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                                <div class="concursant-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; align-items: center;">
+                                    <span class="card-badge badge-green" th:text="${concursant.categoria ?: 'RX'}">RX</span>
+                                    <img th:if="${concursant.usuari != null and concursant.usuari.nacionalitat != null}"
+                                         th:src="'https://flagcdn.com/24x18/' + ${#strings.toLowerCase(concursant.usuari.nacionalitat)} + '.png'"
+                                         th:alt="${concursant.usuari.nacionalitat}" width="24" height="18"
+                                         style="border-radius: 2px; vertical-align: middle; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                                </div>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <div class="info-label">Teléfono</div>
-                                <div class="info-value">+34 698 765 432</div>
+                        <div class="card-content">
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <div class="info-label">Correu</div>
+                                    <div class="info-value" th:text="${concursant.email ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <div class="info-label">Telèfon</div>
+                                    <div class="info-value" th:text="${concursant.telefon ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-venus-mars"></i>
+                                <div>
+                                    <div class="info-label">Sexe</div>
+                                    <div class="info-value" th:text="${concursant.sexe ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <div>
+                                    <div class="info-label">Edat</div>
+                                    <div class="info-value" th:text="${concursant.edat ?: '-'}">-</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <div class="info-label">Ubicació</div>
-                                <div class="info-value">Madrid, España</div>
-                            </div>
+                        <div class="card-name-bottom">
+                            <h3 th:text="${concursant.nom} + ' ' + ${concursant.cognom}">Nom Cognom</h3>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-trophy"></i>
-                            <div>
-                                <div class="info-label">Competicions</div>
-                                <div class="info-value">3 inscrits</div>
-                            </div>
+                        <div class="card-footer">
+                            <a th:href="@{'/concursants/' + ${concursant.id}}" class="btn btn-primary">Veure Detall</a>
+                            <a th:if="${isAdmin}" th:href="@{'/concursants/' + ${concursant.id} + '/editar'}" class="btn btn-secondary">Editar</a>
+                            <form th:if="${isAdmin}" method="post" th:action="@{'/concursants/' + ${concursant.id} + '/eliminar'}" style="display:inline;" onsubmit="return confirm('Eliminar concursant?')">
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary">Veure Detall</button>
-                    </div>
-                </div>
-
-                <!-- Concursant 3 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Carlos García</h3>
-                        <span class="card-badge badge-orange">Actiu</span>
-                    </div>
-                    <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div class="info-label">Correu</div>
-                                <div class="info-value">carlos@example.com</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <div class="info-label">Teléfono</div>
-                                <div class="info-value">+34 645 123 456</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <div class="info-label">Ubicació</div>
-                                <div class="info-value">Valencia, España</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-trophy"></i>
-                            <div>
-                                <div class="info-label">Competicions</div>
-                                <div class="info-value">7 inscrits</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-primary">Veure Detall</button>
-                    </div>
                 </div>
             </div>
         </main>

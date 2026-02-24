@@ -13,12 +13,8 @@
         <!-- Sidebar -->
         <aside class="sidebar col-auto">
             <div class="sidebar-title">
-                <i class="fas fa-filter"></i>
-                Competition
-            </div>
-
-            <div class="sidebar-section">
-                <input type="text" class="filter-input" placeholder="Filtrar...">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
             </div>
 
             <nav class="sidebar-section">
@@ -47,8 +43,10 @@
                 </div>
 
                 <div class="profile-section">
-                    <div class="avatar"></div>
-                    <button class="btn-profile">Perfil</button>
+                    <div class="avatar" title="Foto de perfil" style="display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
                 </div>
             </div>
 
@@ -178,179 +176,5 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="/js/main.js"></script>
-</body>
-</html>
-                <select id="filtreUsuari" class="form-select">
-                    <option value="">-- Tots els usuaris --</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Alert per missatges -->
-        <div id="alertContainer"></div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Usuari</th>
-                        <th>Llibre</th>
-                        <th>ISBN</th>
-                        <th>Preu</th>
-                        <th>Estat</th>
-                    </tr>
-                </thead>
-                <tbody id="historialTableBody">
-                    <tr>
-                        <td colspan="7" class="text-center">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Carregant...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Resum -->
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Compres Completades</h5>
-                        <p class="card-text fs-2" id="totalCompletades">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-warning">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-hourglass"></i> Pendents</h5>
-                        <p class="card-text fs-2" id="totalPendents">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-info text-white">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-currency-euro"></i> Total Recaptat</h5>
-                        <p class="card-text fs-2" id="totalRecaptat">0.00 €</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let totesLesCompres = [];
-
-        // Carregar usuaris per al filtre
-        async function carregarUsuaris() {
-            try {
-                const response = await fetch('/pagaments/api/usuaris');
-                const usuaris = await response.json();
-                const select = document.getElementById('filtreUsuari');
-
-                usuaris.forEach(usuari => {
-                    const option = document.createElement('option');
-                    option.value = usuari.dni;
-                    option.textContent = `${usuari.nom} (${usuari.dni})`;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error carregant usuaris:', error);
-            }
-        }
-
-        // Carregar historial de compres
-        async function carregarHistorial(dni = '') {
-            try {
-                const url = dni ? `/pagaments/api/historial/${dni}` : '/pagaments/api/historial';
-                const response = await fetch(url);
-                const compres = await response.json();
-                totesLesCompres = compres;
-
-                mostrarCompres(compres);
-                actualitzarResum(compres);
-            } catch (error) {
-                console.error('Error carregant historial:', error);
-                mostrarAlerta('Error al carregar l\'historial', 'danger');
-            }
-        }
-
-        function mostrarCompres(compres) {
-            const tbody = document.getElementById('historialTableBody');
-
-            if (compres.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">No hi ha compres registrades</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = compres.map(compra => {
-                const estatClass = getEstatClass(compra.estat);
-                const dataFormatada = compra.dataCompra ?
-                    new Date(compra.dataCompra).toLocaleString('ca-ES') : '-';
-
-                return `
-                    <tr>
-                        <td>${compra.id}</td>
-                        <td>${dataFormatada}</td>
-                        <td>${compra.usuari ? compra.usuari.nom : '-'}</td>
-                        <td>${compra.llibre ? compra.llibre.titol : '-'}</td>
-                        <td>${compra.llibre ? compra.llibre.isbn : '-'}</td>
-                        <td>${compra.preuPagat ? compra.preuPagat.toFixed(2) + ' €' : '-'}</td>
-                        <td><span class="badge ${estatClass}">${compra.estat || 'DESCONEGUT'}</span></td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function getEstatClass(estat) {
-            switch (estat) {
-                case 'COMPLETAT': return 'bg-success';
-                case 'PENDENT': return 'bg-warning text-dark';
-                case 'CANCEL·LAT': return 'bg-danger';
-                default: return 'bg-secondary';
-            }
-        }
-
-        function actualitzarResum(compres) {
-            const completades = compres.filter(c => c.estat === 'COMPLETAT');
-            const pendents = compres.filter(c => c.estat === 'PENDENT');
-            const totalRecaptat = completades.reduce((sum, c) => sum + (c.preuPagat || 0), 0);
-
-            document.getElementById('totalCompletades').textContent = completades.length;
-            document.getElementById('totalPendents').textContent = pendents.length;
-            document.getElementById('totalRecaptat').textContent = totalRecaptat.toFixed(2) + ' €';
-        }
-
-        function mostrarAlerta(missatge, tipus) {
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = `
-                <div class="alert alert-${tipus} alert-dismissible fade show" role="alert">
-                    ${missatge}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-        }
-
-        // Event listener per al filtre
-        document.getElementById('filtreUsuari').addEventListener('change', function() {
-            carregarHistorial(this.value);
-        });
-
-        // Carregar dades inicials
-        document.addEventListener('DOMContentLoaded', function() {
-            carregarUsuaris();
-            carregarHistorial();
-        });
-    </script>
 </body>
 </html>

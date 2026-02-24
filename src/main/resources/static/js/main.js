@@ -1,24 +1,72 @@
 // Funcionalidades básicas del sitio
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Filtrar en el sidebar
-    const filterInput = document.getElementById('filterInput');
+    // ── Toggle sidebar on small screens ────────────────────────────────────
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!sidebar.classList.contains('show')) {
+                return;
+            }
+            const clickedInsideSidebar = sidebar.contains(event.target);
+            const clickedToggle = sidebarToggle.contains(event.target);
+            if (!clickedInsideSidebar && !clickedToggle) {
+                sidebar.classList.remove('show');
+            }
+        });
+    }
+
+    // ── Filtrar tarjetas en el sidebar por texto ──────────────────────────────
+    const filterInput = document.querySelector('.filter-input');
     if (filterInput) {
         filterInput.addEventListener('input', function() {
-            const filterText = this.value.toLowerCase();
-            const sidebarLinks = document.querySelectorAll('.sidebar-link');
-            sidebarLinks.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                if (text.includes(filterText)) {
-                    link.style.display = 'block';
-                } else {
-                    link.style.display = 'none';
-                }
+            const filterText = this.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(filterText) ? '' : 'none';
+            });
+            // También filtra filas de tabla si las hubiera
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filterText) ? '' : 'none';
             });
         });
     }
 
-    // Animación de hover en las tarjetas
+    // ── Buscador principal (top bar) ──────────────────────────────────────────
+    const searchInput = document.querySelector('.search-box input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchText) ? '' : 'none';
+            });
+            // También filtra filas de tabla si las hubiera
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+        // Botón de búsqueda (lupa)
+        const searchBtn = document.querySelector('.search-box button');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                searchInput.dispatchEvent(new Event('input'));
+            });
+        }
+    }
+
+    // ── Animación de hover en las tarjetas ────────────────────────────────────
     const cards = document.querySelectorAll('.card');
     cards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -29,11 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Botones de acción
+    // ── Botones de acción (ripple effect) ─────────────────────────────────────
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
         button.addEventListener('click', function(e) {
-            // Ripple effect
             const rect = this.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -54,14 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => ripple.remove(), 600);
         });
     });
-
-    // Cerrar sesión o perfil
-    const profileBtn = document.querySelector('.btn-profile');
-    if (profileBtn) {
-        profileBtn.addEventListener('click', function() {
-            alert('Perfil del usuario - Próximamente');
-        });
-    }
 });
 
 // Animación Ripple CSS
