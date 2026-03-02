@@ -28,6 +28,9 @@ public class SecurityConfig {
                 .requestMatchers("/usuaris/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,  "/resultats/nou", "/resultats/*/editar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/resultats", "/resultats/*/editar", "/resultats/*/eliminar").hasRole("ADMIN")
+                // WODs: gestió exclusiva per ADMIN
+                .requestMatchers(HttpMethod.GET,  "/wods/nou/**", "/wods/*/editar", "/wods/competicio/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/wods/**").hasRole("ADMIN")
                 // Everything else requires login
                 .anyRequest().authenticated()
             )

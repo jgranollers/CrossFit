@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detall WOD - Cardio Criminal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        .dificultat-card { border-left: 4px solid; margin-bottom: 1.5rem; color: #fff; }
+        .dificultat-card.DIFICIL  { border-color: #dc3545; }
+        .dificultat-card.INTERMIG { border-color: #ffc107; }
+        .dificultat-card.FACIL    { border-color: #198754; }
+        .dificultat-card h5, .dificultat-card p, .dificultat-card span, .dificultat-card label { color: #fff; }
+        .dificultat-card .text-muted { color: #adb5bd !important; }
+        .dificultat-card .form-label { color: #ccc; }
+        .exercici-row { padding: 0.5rem 0; border-bottom: 1px solid var(--border-dark); color: #fff; }
+        .exercici-row:last-child { border-bottom: none; }
+        .exercici-row .fw-semibold { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <a href="/perfil" class="avatar" title="Perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" style="background:transparent; padding:0; margin-bottom:0.5rem;">
+                            <li class="breadcrumb-item"><a href="/competiciones" style="color:var(--accent-green);">Competicions</a></li>
+                            <li class="breadcrumb-item">
+                                <a th:href="@{'/competiciones/' + ${competicion.id}}" style="color:var(--accent-green);" th:text="${competicion.nom}">Competició</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a th:href="@{'/wods/competicio/' + ${competicion.id}}" style="color:var(--accent-green);">WODs</a>
+                            </li>
+                            <li class="breadcrumb-item active" style="color:#aaa;" th:text="${wod.nom}">WOD</li>
+                        </ol>
+                    </nav>
+                    <h1 class="page-title" th:text="${wod.nom}">WOD 1</h1>
+                    <div class="mt-1">
+                        <span th:if="${wod.modalitat == 'INDIVIDUAL'}" class="badge bg-info text-dark me-1">
+                            <i class="fas fa-user"></i> Individual
+                        </span>
+                        <span th:if="${wod.modalitat == 'GRUP'}" class="badge me-1" style="background-color:#6f42c1;">
+                            <i class="fas fa-users"></i>
+                            <span th:text="'Grup ' + ${wod.subtipusGrup}">Grup HH</span>
+                        </span>
+                        <span th:if="${wod.ordre != null}" class="badge bg-secondary">
+                            Ordre #<span th:text="${wod.ordre}">1</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{'/wods/' + ${wod.id} + '/editar'}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Editar WOD
+                    </a>
+                    <form th:action="@{'/wods/' + ${wod.id} + '/eliminar'}" method="post">
+                        <button type="submit" class="btn btn-outline-danger"
+                                onclick="return confirm('Eliminar aquest WOD i totes les seves dificultats?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+
+                <!-- Flash message -->
+                <div th:if="${missatge}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${missatge}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <!-- Columna principal: dificultats -->
+                    <div class="col-lg-8">
+
+                        <h4 class="mb-3"><i class="fas fa-layer-group me-2" style="color:var(--accent-green);"></i>Nivells de Dificultat</h4>
+
+                        <!-- Sense dificultats -->
+                        <div th:if="${dificultats.empty}"
+                             class="text-center py-4"
+                             style="color:#aaa; border: 1px dashed var(--border-dark); border-radius:8px; margin-bottom:1.5rem;">
+                            <i class="fas fa-layer-group fa-2x mb-2"></i>
+                            <p>Encara no hi ha nivells de dificultat. Afegeix-ne un al panell de la dreta.</p>
+                        </div>
+
+                        <!-- Cards per dificultat -->
+                        <div th:each="dif : ${dificultats}"
+                             th:class="'card dificultat-card ' + ${dif.dificultat}"
+                             style="background-color: var(--card-dark);">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">
+                                        <span th:class="'badge bg-' + ${dif.colorBadge} + ' me-2'" th:text="${dif.dificultatNom}">Difícil</span>
+                                        <span th:if="${dif.tipusPuntuacio != null}" class="text-muted small" th:text="${dif.tipusPuntuacio}">FOR TIME</span>
+                                    </h5>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span th:if="${dif.tempsLimit != null}" class="badge bg-dark border" style="border-color:var(--border-dark)!important;">
+                                            <i class="fas fa-clock me-1"></i><span th:text="${dif.tempsLimit} + ' min'">15 min</span>
+                                        </span>
+                                        <span th:if="${dif.rondes != null}" class="badge bg-dark border" style="border-color:var(--border-dark)!important;">
+                                            <i class="fas fa-redo me-1"></i><span th:text="${dif.rondes} + 'R'">10R</span>
+                                        </span>
+                                        <form th:action="@{'/wods/' + ${wod.id} + '/dificultats/' + ${dif.id} + '/eliminar'}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Eliminar aquesta dificultat i els seus exercicis?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <p th:if="${dif.descripcio != null and !dif.descripcio.isEmpty()}"
+                                   class="text-muted small mb-3" th:text="${dif.descripcio}"></p>
+
+                                <!-- Exercicis -->
+                                <div th:if="${dif.exercicis.empty}" class="text-muted small fst-italic">
+                                    Sense exercicis definits.
+                                </div>
+                                <div th:unless="${dif.exercicis.empty}">
+                                    <div class="exercici-row d-flex justify-content-between align-items-center"
+                                         th:each="ex : ${dif.exercicis}">
+                                        <div>
+                                            <span th:if="${ex.repeticions != null}"
+                                                  class="badge bg-secondary me-2"
+                                                  th:text="${ex.repeticions} + 'x'">10x</span>
+                                            <span th:text="${ex.nom}" class="fw-semibold">FLEX</span>
+                                            <span th:if="${ex.notes != null and !ex.notes.isEmpty()}"
+                                                  class="text-muted small ms-2" th:text="'(' + ${ex.notes} + ')'"></span>
+                                        </div>
+                                        <form th:action="@{'/wods/' + ${wod.id} + '/dificultats/' + ${dif.id} + '/exercicis/' + ${ex.id} + '/eliminar'}"
+                                              method="post">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0"
+                                                    title="Eliminar exercici">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Formulari afegir exercici dins la dificultat -->
+                                <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-dark);">
+                                    <form th:action="@{'/wods/' + ${wod.id} + '/dificultats/' + ${dif.id} + '/exercicis/afegir'}"
+                                          method="post" class="d-flex gap-2 flex-wrap">
+                                        <input type="number" name="repeticions" class="form-control form-control-sm"
+                                               placeholder="Reps" style="width:80px;" min="1">
+                                        <input type="text" name="nom" class="form-control form-control-sm"
+                                               placeholder="Ex: FLEX, ABS, DOMINADES..." style="flex:1; min-width:140px;" required>
+                                        <input type="number" name="ordre" class="form-control form-control-sm"
+                                               placeholder="Ordre" style="width:70px;" min="1">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" style="font-size:0.72rem; padding:0.15rem 0.45rem;">
+                                            <i class="fas fa-plus"></i> Afegir
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna lateral: afegir dificultat -->
+                    <div class="col-lg-4">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); position:sticky; top:1rem;">
+                            <div class="card-body p-4">
+                                <h5 class="mb-3"><i class="fas fa-plus-circle me-2" style="color:var(--accent-green);"></i>Afegir Dificultat</h5>
+
+                                <form th:action="@{'/wods/' + ${wod.id} + '/dificultats/afegir'}" method="post"
+                                      th:object="${novaDificultat}">
+
+                                    <div class="form-group">
+                                        <label class="form-label">Nivell de Dificultat</label>
+                                        <select class="form-control" name="dificultat" required>
+                                            <option value="">Selecciona...</option>
+                                            <option value="DIFICIL">🔴 Difícil</option>
+                                            <option value="INTERMIG">🟡 Intermig</option>
+                                            <option value="FACIL">🟢 Fàcil</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Tipus de Puntuació</label>
+                                        <select class="form-control" name="tipusPuntuacio">
+                                            <option value="">Selecciona...</option>
+                                            <option value="FOR_TIME">For Time</option>
+                                            <option value="AMRAP">AMRAP</option>
+                                            <option value="FOR_REPS">For Reps</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Temps límit (min)</label>
+                                                <input type="number" class="form-control" name="tempsLimit"
+                                                       placeholder="15" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Rondes</label>
+                                                <input type="number" class="form-control" name="rondes"
+                                                       placeholder="10" min="1">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Descripció (opcional)</label>
+                                        <textarea class="form-control" name="descripcio" rows="2"
+                                                  placeholder="Instruccions addicionals..."></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-sm btn-primary w-100" style="font-size:0.82rem;">
+                                        <i class="fas fa-plus"></i> Afegir Dificultat
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

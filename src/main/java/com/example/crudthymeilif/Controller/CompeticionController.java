@@ -8,6 +8,7 @@ import com.example.crudthymeilif.Service.ConcursantService;
 import com.example.crudthymeilif.repository.CompeticionRepository;
 import com.example.crudthymeilif.repository.CompraRepository;
 import com.example.crudthymeilif.repository.UsuariRepository;
+import com.example.crudthymeilif.repository.WodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,9 @@ public class CompeticionController {
 
     @Autowired
     private ConcursantService concursantService;
+
+    @Autowired
+    private WodRepository wodRepository;
 
     @Value("${stripe.public.key}")
     private String stripePublicKey;

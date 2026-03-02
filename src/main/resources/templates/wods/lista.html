@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WODs - Cardio Criminal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <a href="/perfil" class="avatar" title="Perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" style="background:transparent; padding:0; margin-bottom:0.5rem;">
+                            <li class="breadcrumb-item"><a href="/competiciones" style="color: var(--accent-green);">Competicions</a></li>
+                            <li class="breadcrumb-item">
+                                <a th:href="@{'/competiciones/' + ${competicion.id}}" style="color: var(--accent-green);" th:text="${competicion.nom}">Competició</a>
+                            </li>
+                            <li class="breadcrumb-item active" style="color:#aaa;">WODs</li>
+                        </ol>
+                    </nav>
+                    <h1 class="page-title" th:text="'WODs de ' + ${competicion.nom}">WODs</h1>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+
+                <!-- Flash message -->
+                <div th:if="${missatge}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${missatge}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="cards-container">
+                    <!-- Card Nou WOD (estil card-add-new com competicions/concursants) -->
+                    <a th:href="@{'/wods/nou/' + ${competicion.id}}" class="card card-add-new" style="text-decoration: none; cursor: pointer;">
+                        <div class="card-add-content">
+                            <i class="fas fa-plus card-add-icon"></i>
+                            <h3 class="card-add-title">Nou WOD</h3>
+                        </div>
+                    </a>
+
+                    <div th:each="wod : ${wods}">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-header">
+                                <h3 class="card-title" th:text="${wod.nom}">WOD 1</h3>
+                                <span th:if="${wod.ordre != null}"
+                                      class="card-badge badge-green"
+                                      th:text="'#' + ${wod.ordre}">#1</span>
+                            </div>
+                            <div class="card-content">
+                                <!-- Modalitat -->
+                                <div class="info-item">
+                                    <i class="fas fa-users"></i>
+                                    <div>
+                                        <div class="info-label">Modalitat</div>
+                                        <div class="info-value" th:text="${wod.modalitat == 'INDIVIDUAL' ? 'Individual' : 'Grup ' + (wod.subtipusGrup ?: '')}">Individual</div>
+                                    </div>
+                                </div>
+
+                                <!-- Dificultats -->
+                                <div class="info-item">
+                                    <i class="fas fa-layer-group"></i>
+                                    <div>
+                                        <div class="info-label">Dificultats</div>
+                                        <div class="info-value" th:text="${wod.dificultats.size()} + ' nivells'">0 nivells</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer" style="background:transparent; border-top: 1px solid var(--border-dark); padding: 0.75rem;">
+                                <a th:href="@{'/wods/' + ${wod.id}}" class="btn btn-primary">Veure Detall</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -107,6 +107,49 @@ CREATE TABLE IF NOT EXISTS resultat (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ===========================
+-- TAULA: WOD
+-- ===========================
+CREATE TABLE IF NOT EXISTS wod (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    modalitat VARCHAR(50) NOT NULL,        -- INDIVIDUAL, GRUP
+    subtipus_grup VARCHAR(10),             -- HH, DD, HD (null si individual)
+    ordre INT DEFAULT 1,
+    competicion_id BIGINT NOT NULL,
+    INDEX idx_wod_competicion (competicion_id),
+    FOREIGN KEY (competicion_id) REFERENCES competicion(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===========================
+-- TAULA: DIFICULTAT_WOD
+-- ===========================
+CREATE TABLE IF NOT EXISTS dificultat_wod (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    dificultat VARCHAR(20) NOT NULL,       -- DIFICIL, INTERMIG, FACIL
+    tipus_puntuacio VARCHAR(20),           -- FOR_TIME, AMRAP, FOR_REPS
+    temps_limit INT,                       -- minuts
+    rondes INT,
+    descripcio VARCHAR(500),
+    wod_id BIGINT NOT NULL,
+    INDEX idx_dificultat_wod (wod_id),
+    FOREIGN KEY (wod_id) REFERENCES wod(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===========================
+-- TAULA: EXERCICI
+-- ===========================
+CREATE TABLE IF NOT EXISTS exercici (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    repeticions INT,
+    ordre INT DEFAULT 1,
+    notes VARCHAR(300),
+    dificultat_wod_id BIGINT NOT NULL,
+    INDEX idx_exercici_dificultat (dificultat_wod_id),
+    FOREIGN KEY (dificultat_wod_id) REFERENCES dificultat_wod(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===========================
 -- DADES DE MOSTRA
 -- ===========================
 

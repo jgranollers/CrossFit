@@ -73,8 +73,8 @@
             <!-- Detail Container -->
             <div class="container-fluid">
                 <div class="row">
+                    <!-- LEFT COL: Info General -->
                     <div class="col-lg-8">
-                        <!-- Main Details Card -->
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
                             <div class="card-body p-4">
                                 <h2 class="mb-3">Informació General</h2>
@@ -139,8 +139,121 @@
                                 </p>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Participants Card -->
+                    <!-- RIGHT COL: Estat + Accions -->
+                    <div class="col-lg-4">
+                        <!-- Status Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
+                            <div class="card-body p-4">
+                                <h3 class="mb-3">Estat</h3>
+                                <span class="card-badge" th:classappend="${competicion != null && competicion.estat == 'OBERTA' ? 'badge-green' : 'badge-red'}" 
+                                      th:text="${competicion != null ? competicion.estat : '-'}">-</span>
+
+                                <div class="mt-4">
+                                    <h5 style="color: var(--text-light);">Places ocupades</h5>
+                                    <div class="places-bar">
+                                        <div class="places-fill" th:style="'width: ' + ${porcentajeOcupacion} + '%;'"></div>
+                                    </div>
+                                    <div class="places-text">
+                                        <span th:text="${numInscritos}">0</span> de 
+                                        <span th:text="${competicion != null ? competicion.maxParticipants : 0}">0</span> places
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Card -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <!-- Missatges de feedback -->
+                                <div th:if="${success}" class="alert alert-success" role="alert" style="background-color: rgba(0, 255, 136, 0.15); border-color: var(--accent-green); color: var(--accent-green);">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span th:text="${success}">Operació exitosa</span>
+                                </div>
+                                <div th:if="${error}" class="alert alert-danger" role="alert" style="background-color: rgba(255, 0, 0, 0.15); border-color: #dc3545; color: #ff6b6b;">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span th:text="${error}">Error</span>
+                                </div>
+
+                                <!-- Botó inscripció -->
+                                <div th:if="${competicion != null && competicion.estat == 'OBERTA'}">
+                                    <div th:if="${jaInscrit}" class="mb-3">
+                                        <button class="btn btn-success w-100 mb-2" disabled>
+                                            <i class="fas fa-check-circle"></i> Ja estàs inscrit!
+                                        </button>
+                                    </div>
+
+                                    <div th:if="${tenguiPendent}" class="mb-3">
+                                        <div class="alert" style="background-color: rgba(255, 193, 7, 0.15); border-color: #ffc107; color: #ffc107; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                                            <i class="fas fa-clock me-2"></i>
+                                            El teu pagament va quedar pendent.
+                                        </div>
+                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
+                                            <button type="submit" class="btn btn-warning w-100">
+                                                <i class="fas fa-credit-card me-2"></i> Completar pagament
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div th:if="${!teConcursant}" class="mb-3">
+                                        <a href="/concursants/nou" class="btn btn-warning w-100 mb-2">
+                                            <i class="fas fa-user-plus"></i> Crea el teu perfil de concursant
+                                        </a>
+                                        <small style="color: var(--text-muted);">Necessites un perfil de concursant per inscriure't.</small>
+                                    </div>
+
+                                    <div th:if="${teConcursant && !jaInscrit && !tenguiPendent}" class="mb-3">
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <h6 style="color: var(--accent-green); margin-bottom: 0.5rem;">
+                                                <i class="fas fa-user"></i> Les teves dades
+                                            </h6>
+                                            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                                <div><strong style="color: var(--text-light);">Nom:</strong> <span th:text="${concursantActual != null ? concursantActual.nom + ' ' + concursantActual.cognom : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Categoria:</strong> <span th:text="${concursantActual != null ? concursantActual.categoria : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Sexe:</strong> <span th:text="${concursantActual != null ? concursantActual.sexe : '-'}">-</span></div>
+                                                <div><strong style="color: var(--text-light);">Edat:</strong> <span th:text="${concursantActual != null ? concursantActual.edat : '-'}">-</span></div>
+                                            </div>
+                                        </div>
+
+                                        <div style="background: rgba(0, 136, 255, 0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--accent-blue);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="color: var(--text-light);">Preu inscripció:</span>
+                                                <span style="color: var(--accent-blue); font-size: 1.25rem; font-weight: bold;" 
+                                                      th:text="${competicion.preuInscripcio == null || competicion.preuInscripcio == 0 ? 'Gratis' : '€ ' + competicion.preuInscripcio}">-</span>
+                                            </div>
+                                            <div th:if="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0}" 
+                                                 style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                                                <i class="fas fa-lock me-1"></i> Pagament segur amb Stripe
+                                            </div>
+                                        </div>
+
+                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
+                                            <button type="submit" class="btn btn-primary w-100 mb-2" 
+                                                    th:text="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0 ? 'Pagar i Inscriure-me (€ ' + competicion.preuInscripcio + ')' : 'Inscriure-me Gratis'}">
+                                                <i class="fas fa-user-plus"></i> Apunta't
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div th:if="${competicion != null && competicion.estat != 'OBERTA'}">
+                                    <button class="btn btn-secondary w-100 mb-2" disabled>
+                                        <i class="fas fa-lock"></i> Inscripcions tancades
+                                    </button>
+                                </div>
+
+                                <button class="btn btn-secondary w-100">
+                                    <i class="fas fa-share-alt"></i> Compartir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FULL WIDTH: Concursants Inscrits -->
+                <div class="row mt-4">
+                    <div class="col-12">
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
                             <div class="card-body p-4">
                                 <h2 class="mb-3">Concursants Inscrits</h2>
@@ -182,119 +295,59 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Sidebar Info -->
-                    <div class="col-lg-4">
-                        <!-- Status Card -->
-                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark); margin-bottom: 2rem;">
-                            <div class="card-body p-4">
-                                <h3 class="mb-3">Estat</h3>
-                                <span class="card-badge" th:classappend="${competicion != null && competicion.estat == 'OBERTA' ? 'badge-green' : 'badge-red'}" 
-                                      th:text="${competicion != null ? competicion.estat : '-'}">-</span>
-
-                                <div class="mt-4">
-                                    <h5 style="color: var(--text-light);">Places ocupades</h5>
-                                    <div class="places-bar">
-                                        <div class="places-fill" th:style="'width: ' + ${porcentajeOcupacion} + '%;'"></div>
-                                    </div>
-                                    <div class="places-text">
-                                        <span th:text="${numInscritos}">0</span> de 
-                                        <span th:text="${competicion != null ? competicion.maxParticipants : 0}">0</span> places
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Actions Card -->
+                <!-- FULL WIDTH: WODs -->
+                <div class="row mt-4">
+                    <div class="col-12">
                         <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
                             <div class="card-body p-4">
-                                <!-- Missatges de feedback -->
-                                <div th:if="${success}" class="alert alert-success" role="alert" style="background-color: rgba(0, 255, 136, 0.15); border-color: var(--accent-green); color: var(--accent-green);">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    <span th:text="${success}">Operació exitosa</span>
-                                </div>
-                                <div th:if="${error}" class="alert alert-danger" role="alert" style="background-color: rgba(255, 0, 0, 0.15); border-color: #dc3545; color: #ff6b6b;">
-                                    <i class="fas fa-exclamation-circle me-2"></i>
-                                    <span th:text="${error}">Error</span>
+                                <h2 class="mb-3"><i class="fas fa-clipboard-list me-2" style="color:var(--accent-green);"></i>WODs</h2>
+
+                                <div th:if="${competicion.wods.empty and !isAdmin}" class="text-center py-3" style="color:#aaa;">
+                                    <i class="fas fa-clipboard fa-2x mb-2"></i>
+                                    <p class="mb-0">Encara no s'han definit els WODs d'aquesta competició.</p>
                                 </div>
 
-                                <!-- Botó inscripció -->
-                                <div th:if="${competicion != null && competicion.estat == 'OBERTA'}">
-                                    <!-- Ja inscrit (COMPLETAT) -->
-                                    <div th:if="${jaInscrit}" class="mb-3">
-                                        <button class="btn btn-success w-100 mb-2" disabled>
-                                            <i class="fas fa-check-circle"></i> Ja estàs inscrit!
-                                        </button>
-                                    </div>
-
-                                    <!-- Inscripció PENDENT: reprendre el pagament -->
-                                    <div th:if="${tenguiPendent}" class="mb-3">
-                                        <div class="alert" style="background-color: rgba(255, 193, 7, 0.15); border-color: #ffc107; color: #ffc107; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
-                                            <i class="fas fa-clock me-2"></i>
-                                            El teu pagament va quedar pendent. Pots completar-lo ara.
-                                        </div>
-                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
-                                            <button type="submit" class="btn btn-warning w-100">
-                                                <i class="fas fa-credit-card me-2"></i> Completar pagament
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <!-- No té perfil de concursant -->
-                                    <div th:if="${!teConcursant}" class="mb-3">
-                                        <a href="/concursants/nou" class="btn btn-warning w-100 mb-2">
-                                            <i class="fas fa-user-plus"></i> Crea el teu perfil de concursant
+                                <div th:if="${!competicion.wods.empty or isAdmin}" class="row g-3">
+                                    <div class="col-md-4 col-lg-3" th:each="wod : ${competicion.wods}">
+                                        <a th:href="@{'/wods/' + ${wod.id}}" style="text-decoration:none;">
+                                            <div class="card h-100" style="background-color:rgba(255,255,255,0.04); border:1px solid var(--border-dark); transition:border-color 0.2s;"
+                                                 onmouseover="this.style.borderColor='var(--accent-green)'"
+                                                 onmouseout="this.style.borderColor='var(--border-dark)'">
+                                                <div class="card-body p-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong style="color:var(--text-light);" th:text="${wod.nom}">WOD 1</strong>
+                                                        <span th:if="${wod.ordre != null}" class="badge bg-secondary" th:text="'#' + ${wod.ordre}">#1</span>
+                                                    </div>
+                                                    <div>
+                                                        <span th:if="${wod.modalitat == 'INDIVIDUAL'}" class="badge bg-info text-dark me-1" style="font-size:0.75rem;">
+                                                            <i class="fas fa-user"></i> Individual
+                                                        </span>
+                                                        <span th:if="${wod.modalitat == 'GRUP'}" class="badge me-1" style="background:#6f42c1; font-size:0.75rem;">
+                                                            <i class="fas fa-users"></i>
+                                                            <span th:text="'Grup ' + ${wod.subtipusGrup}">Grup HH</span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-2" th:unless="${wod.dificultats.empty}">
+                                                        <span th:each="dif : ${wod.dificultats}"
+                                                              th:class="'badge me-1 bg-' + ${dif.colorBadge}"
+                                                              th:text="${dif.dificultatNom}">Difícil</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </a>
-                                        <small style="color: var(--text-muted);">Necessites un perfil de concursant per inscriure't.</small>
                                     </div>
-
-                                    <!-- Pot inscriure's -->
-                                    <div th:if="${teConcursant && !jaInscrit && !tenguiPendent}" class="mb-3">
-                                        <!-- Informació del concursant -->
-                                        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                                            <h6 style="color: var(--accent-green); margin-bottom: 0.5rem;">
-                                                <i class="fas fa-user"></i> Les teves dades
-                                            </h6>
-                                            <div style="color: var(--text-muted); font-size: 0.9rem;">
-                                                <div><strong style="color: var(--text-light);">Nom:</strong> <span th:text="${concursantActual != null ? concursantActual.nom + ' ' + concursantActual.cognom : '-'}">-</span></div>
-                                                <div><strong style="color: var(--text-light);">Categoria:</strong> <span th:text="${concursantActual != null ? concursantActual.categoria : '-'}">-</span></div>
-                                                <div><strong style="color: var(--text-light);">Sexe:</strong> <span th:text="${concursantActual != null ? concursantActual.sexe : '-'}">-</span></div>
-                                                <div><strong style="color: var(--text-light);">Edat:</strong> <span th:text="${concursantActual != null ? concursantActual.edat : '-'}">-</span></div>
+                                    <!-- Gestionar WODs card (admin only) -->
+                                    <div th:if="${isAdmin}" class="col-md-4 col-lg-3">
+                                        <a th:href="@{'/wods/competicio/' + ${competicion.id}}" class="card card-add-new h-100" style="text-decoration:none; min-height:120px;">
+                                            <div class="card-add-content">
+                                                <i class="fas fa-cog card-add-icon" style="font-size:2rem;"></i>
+                                                <h3 class="card-add-title" style="font-size:1rem;">Gestionar WODs</h3>
                                             </div>
-                                        </div>
-
-                                        <!-- Preu i botó -->
-                                        <div style="background: rgba(0, 136, 255, 0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--accent-blue);">
-                                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                <span style="color: var(--text-light);">Preu inscripció:</span>
-                                                <span style="color: var(--accent-blue); font-size: 1.25rem; font-weight: bold;" 
-                                                      th:text="${competicion.preuInscripcio == null || competicion.preuInscripcio == 0 ? 'Gratis' : '€ ' + competicion.preuInscripcio}">-</span>
-                                            </div>
-                                            <div th:if="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0}" 
-                                                 style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
-                                                <i class="fas fa-lock me-1"></i> Pagament segur amb Stripe
-                                            </div>
-                                        </div>
-
-                                        <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
-                                            <button type="submit" class="btn btn-primary w-100 mb-2" 
-                                                    th:text="${competicion.preuInscripcio != null && competicion.preuInscripcio > 0 ? 'Pagar i Inscriure-me (€ ' + competicion.preuInscripcio + ')' : 'Inscriure-me Gratis'}">
-                                                <i class="fas fa-user-plus"></i> Apunta't
-                                            </button>
-                                        </form>
+                                        </a>
                                     </div>
                                 </div>
-
-                                <!-- Competició no oberta -->
-                                <div th:if="${competicion != null && competicion.estat != 'OBERTA'}">
-                                    <button class="btn btn-secondary w-100 mb-2" disabled>
-                                        <i class="fas fa-lock"></i> Inscripcions tancades
-                                    </button>
-                                </div>
-
-                                <button class="btn btn-secondary w-100">
-                                    <i class="fas fa-share-alt"></i> Compartir
-                                </button>
                             </div>
                         </div>
                     </div>

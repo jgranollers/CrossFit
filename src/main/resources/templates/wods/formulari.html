@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulari WOD - Cardio Criminal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <a href="/perfil" class="avatar" title="Perfil" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" style="background:transparent; padding:0; margin-bottom:0.5rem;">
+                            <li class="breadcrumb-item"><a href="/competiciones" style="color: var(--accent-green);">Competicions</a></li>
+                            <li class="breadcrumb-item">
+                                <a th:href="@{'/competiciones/' + ${competicion.id}}" style="color: var(--accent-green);" th:text="${competicion.nom}">Competició</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a th:href="@{'/wods/competicio/' + ${competicion.id}}" style="color: var(--accent-green);">WODs</a>
+                            </li>
+                            <li class="breadcrumb-item active" style="color:#aaa;"
+                                th:text="${wod.id != null ? 'Editar' : 'Nou'}">Nou</li>
+                        </ol>
+                    </nav>
+                    <h1 class="page-title" th:text="${wod.id != null ? 'Editar WOD' : 'Nou WOD'}">Nou WOD</h1>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6 col-xl-5 mx-auto">
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+
+                                <!-- Formulari Nou -->
+                                <form th:if="${wod.id == null}"
+                                      method="post"
+                                      th:action="@{'/wods/nou/' + ${competicion.id}}"
+                                      th:object="${wod}">
+
+                                    <!-- Nom WOD -->
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-clipboard"></i> Nom del WOD</label>
+                                        <input type="text" class="form-control" th:field="*{nom}"
+                                               placeholder="Ex: WOD 1, WOD Finals..." required>
+                                    </div>
+
+                                    <!-- Modalitat -->
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-users"></i> Modalitat</label>
+                                        <select class="form-control" th:field="*{modalitat}" id="modalitat" required
+                                                onchange="toggleSubtipus()">
+                                            <option value="" disabled th:selected="*{modalitat} == null">Selecciona modalitat</option>
+                                            <option value="INDIVIDUAL">Individual (# / D)</option>
+                                            <option value="GRUP">Grup</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Subtipus Grup (visible només si GRUP) -->
+                                    <div class="form-group" id="subtipusGrupDiv" style="display:none;">
+                                        <label class="form-label"><i class="fas fa-venus-mars"></i> Tipologia del Grup</label>
+                                        <select class="form-control" th:field="*{subtipusGrup}">
+                                            <option value="">Selecciona tipologia</option>
+                                            <option value="HH">HH – Home + Home</option>
+                                            <option value="DD">DD – Dona + Dona</option>
+                                            <option value="HD">HD – Home + Dona</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Ordre -->
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-sort-numeric-up"></i> Ordre (opcional)</label>
+                                        <input type="number" class="form-control" th:field="*{ordre}"
+                                               placeholder="1, 2, 3..." min="1">
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button type="submit" class="btn btn-primary flex-fill">
+                                            <i class="fas fa-save"></i> Crear WOD
+                                        </button>
+                                        <a th:href="@{'/wods/competicio/' + ${competicion.id}}" class="btn btn-outline-secondary flex-fill">
+                                            Cancel·lar
+                                        </a>
+                                    </div>
+                                </form>
+
+                                <!-- Formulari Editar -->
+                                <form th:if="${wod.id != null}"
+                                      method="post"
+                                      th:action="@{'/wods/' + ${wod.id} + '/editar'}"
+                                      th:object="${wod}">
+
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-clipboard"></i> Nom del WOD</label>
+                                        <input type="text" class="form-control" th:field="*{nom}" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-users"></i> Modalitat</label>
+                                        <select class="form-control" th:field="*{modalitat}" id="modalitatEdit" required
+                                                onchange="toggleSubtipusEdit()">
+                                            <option value="INDIVIDUAL">Individual (# / D)</option>
+                                            <option value="GRUP">Grup</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group" id="subtipusGrupDivEdit">
+                                        <label class="form-label"><i class="fas fa-venus-mars"></i> Tipologia del Grup</label>
+                                        <select class="form-control" th:field="*{subtipusGrup}">
+                                            <option value="">Selecciona tipologia</option>
+                                            <option value="HH">HH – Home + Home</option>
+                                            <option value="DD">DD – Dona + Dona</option>
+                                            <option value="HD">HD – Home + Dona</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label"><i class="fas fa-sort-numeric-up"></i> Ordre</label>
+                                        <input type="number" class="form-control" th:field="*{ordre}" min="1">
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button type="submit" class="btn btn-primary flex-fill">
+                                            <i class="fas fa-save"></i> Guardar Canvis
+                                        </button>
+                                        <a th:href="@{'/wods/' + ${wod.id}}" class="btn btn-outline-secondary flex-fill">
+                                            Cancel·lar
+                                        </a>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSubtipus() {
+            const sel = document.getElementById('modalitat');
+            const div = document.getElementById('subtipusGrupDiv');
+            div.style.display = sel.value === 'GRUP' ? 'block' : 'none';
+        }
+        function toggleSubtipusEdit() {
+            const sel = document.getElementById('modalitatEdit');
+            const div = document.getElementById('subtipusGrupDivEdit');
+            div.style.display = sel.value === 'GRUP' ? 'block' : 'none';
+        }
+        // Init edit form
+        window.addEventListener('DOMContentLoaded', () => {
+            const editSel = document.getElementById('modalitatEdit');
+            if (editSel) toggleSubtipusEdit();
+        });
+    </script>
+</body>
+</html>

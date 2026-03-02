@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "competicion")
@@ -44,6 +46,10 @@ public class Competicion {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "competicion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OrderBy("ordre ASC")
+    private List<Wod> wods = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -133,4 +139,7 @@ public class Competicion {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public List<Wod> getWods() { return wods; }
+    public void setWods(List<Wod> wods) { this.wods = wods; }
 }
