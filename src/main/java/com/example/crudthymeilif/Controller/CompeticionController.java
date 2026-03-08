@@ -10,7 +10,6 @@ import com.example.crudthymeilif.repository.CompraRepository;
 import com.example.crudthymeilif.repository.UsuariRepository;
 import com.example.crudthymeilif.repository.WodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,9 +40,6 @@ public class CompeticionController {
 
     @Autowired
     private WodRepository wodRepository;
-
-    @Value("${stripe.public.key}")
-    private String stripePublicKey;
 
     @GetMapping
     public String listaCompeticiones(Model model) {
@@ -85,7 +81,6 @@ public class CompeticionController {
             model.addAttribute("compras", compras);
             model.addAttribute("numInscritos", numInscritos);
             model.addAttribute("porcentajeOcupacion", Math.min(porcentaje, 100));
-            model.addAttribute("stripePublicKey", stripePublicKey);
 
             // Verificar estat de l'usuari actual
             if (authentication != null && authentication.isAuthenticated()) {
@@ -100,13 +95,10 @@ public class CompeticionController {
                     if (optConcursant.isPresent()) {
                         Optional<Compra> inscripcio = compraRepository.findByCompeticioAndConcursant(competicion, optConcursant.get());
                         boolean completat = inscripcio.isPresent() && "COMPLETAT".equals(inscripcio.get().getEstat());
-                        boolean pendent = inscripcio.isPresent() && "PENDENT".equals(inscripcio.get().getEstat());
                         model.addAttribute("jaInscrit", completat);
-                        model.addAttribute("tenguiPendent", pendent);
                         model.addAttribute("concursantActual", optConcursant.get());
                     } else {
                         model.addAttribute("jaInscrit", false);
-                        model.addAttribute("tenguiPendent", false);
                     }
                 } else {
                     model.addAttribute("teConcursant", false);

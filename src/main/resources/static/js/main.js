@@ -45,16 +45,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             const searchText = this.value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.card');
+            // Filter cards (but not the card-add-new ones)
+            const cards = document.querySelectorAll('.cards-container > .card:not(.card-add-new)');
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
                 card.style.display = text.includes(searchText) ? '' : 'none';
             });
-            // También filtra filas de tabla si las hubiera
+            // Filter table rows
             const rows = document.querySelectorAll('table tbody tr');
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+            // Filter accordion items (for results page)
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            accordionItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchText) ? '' : 'none';
             });
         });
         // Botón de búsqueda (lupa)

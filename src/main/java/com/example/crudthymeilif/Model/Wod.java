@@ -26,6 +26,13 @@ public class Wod {
     @Column(name = "subtipus_grup")
     private String subtipusGrup;
 
+    // TIME, WEIGHT, REPS
+    @Column(name = "tipus", nullable = false)
+    private String tipus;
+
+    @Column(name = "etiqueta")
+    private String etiqueta;
+
     @Column(name = "ordre")
     private Integer ordre;
 
@@ -56,6 +63,12 @@ public class Wod {
     public Integer getOrdre() { return ordre; }
     public void setOrdre(Integer ordre) { this.ordre = ordre; }
 
+    public String getTipus() { return tipus; }
+    public void setTipus(String tipus) { this.tipus = tipus; }
+
+    public String getEtiqueta() { return etiqueta; }
+    public void setEtiqueta(String etiqueta) { this.etiqueta = etiqueta; }
+
     public Competicion getCompeticion() { return competicion; }
     public void setCompeticion(Competicion competicion) { this.competicion = competicion; }
 
@@ -73,5 +86,33 @@ public class Wod {
             };
         }
         return "Individual";
+    }
+
+    // Helper: badge per tipus de WOD
+    public String getTipusBadge() {
+        return switch (tipus != null ? tipus : "") {
+            case "TIME" -> "T";
+            case "WEIGHT" -> "P";
+            case "REPS" -> "R";
+            default -> "?";
+        };
+    }
+
+    public String getTipusColor() {
+        return switch (tipus != null ? tipus : "") {
+            case "TIME" -> "#3b82f6";
+            case "WEIGHT" -> "#22c55e";
+            case "REPS" -> "#22c55e";
+            default -> "#6b7280";
+        };
+    }
+
+    public String getTipusNom() {
+        return switch (tipus != null ? tipus : "") {
+            case "TIME" -> "Temps";
+            case "WEIGHT" -> "Pes";
+            case "REPS" -> "Repeticions";
+            default -> tipus;
+        };
     }
 }

@@ -2,7 +2,7 @@
     --primary-dark: #1c2120;
     --primary-darker: #141918;
     --accent-blue: #4ade80;
-    --accent-orange: #f97316;
+    --accent-orange: #22c55e;
     --accent-green: #22c55e;
     --accent-cyan: #34d399;
     --text-light: #f0f4f0;
@@ -922,7 +922,7 @@ textarea.form-control {
 }
 
 .btn-guardar:hover {
-    background-color: #ea5e0d;
+    background-color: #16a34a;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
 }

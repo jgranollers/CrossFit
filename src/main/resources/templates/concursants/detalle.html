@@ -91,6 +91,8 @@
                             <div class="card-body p-4">
                                 <h2 class="mb-3">Informació Personal</h2>
 
+                                <!-- Personal info: only visible to admin or own profile -->
+                                <div th:if="${isAdmin or isMyConcursant}">
                                 <div class="row mb-4">
                                     <div class="col-md-6">
                                         <div class="info-item">
@@ -151,6 +153,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                </div><!-- end admin/own only -->
+
+                                <!-- Public info: always visible -->
 
                                 <div class="row">
                                     <div class="col-md-6">

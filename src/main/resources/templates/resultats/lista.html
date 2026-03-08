@@ -3,34 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultats Competicions - PateixFit</title>
+    <title>Resultats Competicions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
     <style>
-        .medal-podium {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .medal-card {
-            flex: 1;
-            min-width: 140px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border-dark);
-            border-radius: 12px;
-            padding: 1.2rem 1rem;
-            text-align: center;
-            transition: transform 0.15s;
-        }
-        .medal-card:hover { transform: translateY(-3px); }
-        .medal-card.gold   { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
-        .medal-card.silver { border-color: #94a3b8; background: rgba(148,163,184,0.07); }
-        .medal-card.bronze { border-color: #b45309; background: rgba(180,83,9,0.07); }
-        .medal-img { font-size: 2.5rem; line-height: 1; margin-bottom: 0.4rem; }
-        .medal-pos { font-size: 0.7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
-        .medal-name { font-size: 1rem; font-weight: 700; color: var(--text-light); margin-bottom: 0; }
-        .medal-sub { font-size: 0.8rem; color: var(--text-muted); }
         .accordion-item {
             background: var(--card-dark) !important;
             border: 1px solid var(--border-dark) !important;
@@ -54,6 +31,12 @@
         .comp-meta { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; }
         .comp-meta span { margin-right: 1rem; }
         .empty-results { text-align: center; padding: 2rem 0; color: var(--text-muted); }
+        .ranking-table { width: 100%; border-collapse: collapse; }
+        .ranking-table th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border-dark); }
+        .ranking-table td { padding: 0.7rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-light); }
+        .ranking-table tr:hover td { background: rgba(255,255,255,0.03); }
+        .pos-medal { font-size: 1.3rem; }
+        .punts-badge { background: rgba(99,102,241,0.15); color: var(--accent-blue); font-weight: 700; padding: 0.3rem 0.7rem; border-radius: 8px; font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -64,7 +47,6 @@
                 <i class="fas fa-dumbbell"></i>
                 PateixFit
             </div>
-
 
             <nav class="sidebar-section">
                 <a href="/competiciones" class="sidebar-link">
@@ -106,11 +88,6 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1 class="page-title"><i class="fas fa-chart-bar me-2"></i>Resultats Competicions</h1>
-                <div>
-                    <a th:if="${isAdmin}" href="/resultats/nou" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Afegir Resultats
-                    </a>
-                </div>
             </div>
 
             <!-- Empty state -->
@@ -156,37 +133,14 @@
                                 </span>
                             </div>
 
-                            <!-- Podium -->
-                            <div th:with="rs=${resultatsByComp[comp.id]}">
-                                <div th:if="${rs == null or #lists.isEmpty(rs)}" class="empty-results" style="padding:1rem 0;">
-                                    <i class="fas fa-medal fa-2x mb-2" style="color:var(--text-muted);"></i>
-                                    <p style="margin:0; font-size:0.9rem;">Encara no hi ha resultats per aquesta competició.</p>
-                                    <a th:if="${isAdmin}" th:href="@{/resultats/nou}" class="btn btn-sm btn-primary mt-2">
-                                        <i class="fas fa-plus me-1"></i> Afegir guanyadors
+                            <!-- Ranking by points -->
+                            <div>
+                                <div class="empty-results" style="padding:1rem 0;">
+                                    <a th:href="@{'/resultats/competicio/' + ${comp.id}}" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-chart-line me-1"></i> Veure Puntuacions i Rankings
                                     </a>
-                                </div>
-
-                                <div th:unless="${rs == null or #lists.isEmpty(rs)}" class="medal-podium">
-                                    <div th:each="r : ${rs}"
-                                         class="medal-card"
-                                         th:classappend="${r.posicio == 1 ? ' gold' : (r.posicio == 2 ? ' silver' : ' bronze')}">
-                                        <div class="medal-img" th:text="${r.posicio == 1 ? '🥇' : (r.posicio == 2 ? '🥈' : '🥉')}"></div>
-                                        <div class="medal-pos" th:text="${r.posicio == 1 ? '1r Lloc' : (r.posicio == 2 ? '2n Lloc' : '3r Lloc')}"></div>
-                                        <div class="medal-name"
-                                             th:text="${r.concursant != null ? (r.concursant.nom + ' ' + r.concursant.cognom) : '-'}">
-                                        </div>
-                                        <div class="medal-sub" th:if="${r.concursant?.usuari?.nacionalitat != null}">
-                                            <img th:src="'https://flagcdn.com/20x15/' + ${#strings.toLowerCase(r.concursant.usuari.nacionalitat)} + '.png'"
-                                                 th:alt="${r.concursant.usuari.nacionalitat}" width="20" height="15"
-                                                 style="border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,0.3); margin-top:0.3rem;">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Admin edit link -->
-                                <div th:if="${isAdmin and rs != null and !#lists.isEmpty(rs)}" style="margin-top:1rem;">
-                                    <a href="/resultats/nou" class="btn btn-sm btn-secondary">
-                                        <i class="fas fa-edit me-1"></i> Editar resultats
+                                    <a th:href="@{'/resultats/leaderboard/' + ${comp.id}}" class="btn btn-sm btn-outline-secondary mt-2 ms-2">
+                                        <i class="fas fa-chart-bar me-1"></i> Leaderboard Públic
                                     </a>
                                 </div>
                             </div>

@@ -2,6 +2,9 @@ package com.example.crudthymeilif.Controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.crudthymeilif.Model.Competicion;
 import com.example.crudthymeilif.Model.Compra;
 import com.example.crudthymeilif.Model.Concursant;
 import com.example.crudthymeilif.Model.Resultat;
@@ -47,6 +51,20 @@ public class ConcursantController {
     public String listaConcursants(Model model, Authentication authentication) {
         List<Concursant> concursants = concursantRepository.findAll();
         model.addAttribute("concursants", concursants);
+        
+        // Build map of concursant ID -> list of competition names they're enrolled in
+        List<Compra> allCompras = compraRepository.findAll();
+        Map<Long, List<String>> competicionsByConcursant = new HashMap<>();
+        for (Compra compra : allCompras) {
+            if ("COMPLETAT".equals(compra.getEstat()) && compra.getConcursant() != null) {
+                Long cid = compra.getConcursant().getId();
+                String compName = compra.getCompeticio() != null ? compra.getCompeticio().getNom() : null;
+                if (compName != null) {
+                    competicionsByConcursant.computeIfAbsent(cid, k -> new java.util.ArrayList<>()).add(compName);
+                }
+            }
+        }
+        model.addAttribute("competicionsByConcursant", competicionsByConcursant);
         
         // Verificar si el usuario autenticado ya tiene un concursante
         boolean usuarioTieneConcursant = false;

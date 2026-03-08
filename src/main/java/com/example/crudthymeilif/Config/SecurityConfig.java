@@ -28,8 +28,13 @@ public class SecurityConfig {
                 .requestMatchers("/usuaris/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,  "/resultats/nou", "/resultats/*/editar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/resultats", "/resultats/*/editar", "/resultats/*/eliminar").hasRole("ADMIN")
-                // WODs: gestió exclusiva per ADMIN
-                .requestMatchers(HttpMethod.GET,  "/wods/nou/**", "/wods/*/editar", "/wods/competicio/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/resultats/competicio/*/puntuacio").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/resultats/puntuacio/*/eliminar").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,  "/resultats/leaderboard/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/resultats/wod/*/concursant/*/completar", "/resultats/wod/*/concursant/*/descompletar").hasRole("ADMIN")
+                // WODs: lectura per tots, gestió exclusiva per ADMIN
+                .requestMatchers(HttpMethod.GET,  "/wods/nou/**", "/wods/*/editar").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,  "/wods/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/wods/**").hasRole("ADMIN")
                 // Everything else requires login
                 .anyRequest().authenticated()

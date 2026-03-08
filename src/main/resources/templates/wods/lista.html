@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WODs - Cardio Criminal</title>
+    <title>WODs</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
@@ -70,7 +70,7 @@
                 <!-- Cards Grid -->
                 <div class="cards-container">
                     <!-- Card Nou WOD (estil card-add-new com competicions/concursants) -->
-                    <a th:href="@{'/wods/nou/' + ${competicion.id}}" class="card card-add-new" style="text-decoration: none; cursor: pointer;">
+                    <a th:if="${isAdmin}" th:href="@{'/wods/nou/' + ${competicion.id}}" class="card card-add-new" style="text-decoration: none; cursor: pointer;">
                         <div class="card-add-content">
                             <i class="fas fa-plus card-add-icon"></i>
                             <h3 class="card-add-title">Nou WOD</h3>

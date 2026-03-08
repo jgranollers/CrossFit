@@ -19,6 +19,12 @@ public class Exercici {
     @Column(name = "repeticions")
     private Integer repeticions;
 
+    @Column(name = "kg")
+    private Double kg;
+
+    @Column(name = "cap_minut")
+    private Integer capMinut;
+
     @Column(name = "ordre")
     private Integer ordre;
 
@@ -41,6 +47,12 @@ public class Exercici {
 
     public Integer getRepeticions() { return repeticions; }
     public void setRepeticions(Integer repeticions) { this.repeticions = repeticions; }
+
+    public Double getKg() { return kg; }
+    public void setKg(Double kg) { this.kg = kg; }
+
+    public Integer getCapMinut() { return capMinut; }
+    public void setCapMinut(Integer capMinut) { this.capMinut = capMinut; }
 
     public Integer getOrdre() { return ordre; }
     public void setOrdre(Integer ordre) { this.ordre = ordre; }

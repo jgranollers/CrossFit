@@ -178,32 +178,54 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div class="info-label">Correu</div>
-                                <div class="info-value" th:text="${concursant.email ?: '-'}">-</div>
+                        <!-- Admin sees full details -->
+                        <div th:if="${isAdmin}">
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <div class="info-label">Correu</div>
+                                    <div class="info-value" th:text="${concursant.email ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <div class="info-label">Telèfon</div>
+                                    <div class="info-value" th:text="${concursant.telefon ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-venus-mars"></i>
+                                <div>
+                                    <div class="info-label">Sexe</div>
+                                    <div class="info-value" th:text="${concursant.sexe ?: '-'}">-</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <div>
+                                    <div class="info-label">Edat</div>
+                                    <div class="info-value" th:text="${concursant.edat ?: '-'}">-</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <div class="info-label">Telèfon</div>
-                                <div class="info-value" th:text="${concursant.telefon ?: '-'}">-</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-venus-mars"></i>
-                            <div>
-                                <div class="info-label">Sexe</div>
-                                <div class="info-value" th:text="${concursant.sexe ?: '-'}">-</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-birthday-cake"></i>
-                            <div>
-                                <div class="info-label">Edat</div>
-                                <div class="info-value" th:text="${concursant.edat ?: '-'}">-</div>
+                        <!-- Normal users: only show competitions -->
+                        <div th:unless="${isAdmin}">
+                            <div class="info-item">
+                                <i class="fas fa-trophy"></i>
+                                <div>
+                                    <div class="info-label">Competicions</div>
+                                    <div class="info-value"
+                                         th:if="${competicionsByConcursant != null and competicionsByConcursant.containsKey(concursant.id)}">
+                                        <span th:each="compNom, stat : ${competicionsByConcursant[concursant.id]}">
+                                            <span class="card-badge badge-blue" style="font-size:0.75rem; margin-bottom:0.2rem;" th:text="${compNom}">Comp</span>
+                                        </span>
+                                    </div>
+                                    <div class="info-value" style="color:var(--text-muted);"
+                                         th:unless="${competicionsByConcursant != null and competicionsByConcursant.containsKey(concursant.id)}">
+                                        Cap competició inscrita
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -85,6 +85,11 @@ public class WodController {
             wod.setSubtipusGrup(null);
         }
 
+        // Default tipus si no s'ha especificat
+        if (wod.getTipus() == null || wod.getTipus().isEmpty()) {
+            wod.setTipus("TIME");
+        }
+
         wodRepository.save(wod);
         redirectAttributes.addFlashAttribute("missatge", "WOD creat correctament!");
         return "redirect:/wods/" + wod.getId();
@@ -141,6 +146,8 @@ public class WodController {
         wod.setNom(wodForm.getNom());
         wod.setModalitat(wodForm.getModalitat());
         wod.setOrdre(wodForm.getOrdre());
+        wod.setTipus(wodForm.getTipus());
+        wod.setEtiqueta(wodForm.getEtiqueta());
 
         if ("INDIVIDUAL".equals(wodForm.getModalitat())) {
             wod.setSubtipusGrup(null);
