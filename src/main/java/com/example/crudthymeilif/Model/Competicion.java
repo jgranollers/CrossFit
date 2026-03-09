@@ -1,7 +1,6 @@
 package com.example.crudthymeilif.Model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -26,7 +25,6 @@ public class Competicion {
 
     @Column(name = "data_competicio")
     @NotNull(message = "La data de la competicio es obligatoria.")
-    @FutureOrPresent(message = "La data no pot ser anterior a avui.")
     private LocalDate dataCompeticio;
 
     @Column(name = "localitat")

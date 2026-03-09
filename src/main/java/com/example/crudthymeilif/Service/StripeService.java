@@ -2,7 +2,12 @@ package com.example.crudthymeilif.Service;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.model.PaymentMethod;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.PaymentIntentConfirmParams;
+import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +19,9 @@ public class StripeService {
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
+    @Value("${stripe.public.key}")
+    private String stripePublicKey;
+
     @Value("${app.base.url}")
     private String baseUrl;
 
@@ -22,14 +30,61 @@ public class StripeService {
         Stripe.apiKey = stripeApiKey;
     }
 
+    public String getStripePublicKey() {
+        return stripePublicKey;
+    }
+
     /**
-     * Crea una sessió de Stripe Checkout per a la inscripció a una competició.
-     *
-     * @param competicioId   ID de la competició
-     * @param competicioNom  Nom de la competició
-     * @param preuEuros      Preu en euros (ex: 25.00)
-     * @param usuariEmail    Email de l'usuari
-     * @return URL de la sessió de Stripe Checkout
+     * Crea un PaymentIntent per a pagament embegut amb Payment Element.
+     * Usa pagament amb targeta explícit (sense redireccions automàtiques).
+     */
+    public PaymentIntent crearPaymentIntent(Long competicioId, String competicioNom, Double preuEuros, String usuariEmail) throws StripeException {
+        long preuCentims = Math.round(preuEuros * 100);
+
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount(preuCentims)
+                .setCurrency("eur")
+                .setReceiptEmail(usuariEmail)
+                .setDescription("Inscripció: " + competicioNom)
+                .addPaymentMethodType("card")
+                .putMetadata("competicio_id", competicioId.toString())
+                .build();
+
+        return PaymentIntent.create(params);
+    }
+
+    /**
+     * Recupera un PaymentIntent per verificar el pagament.
+     */
+    public PaymentIntent obtenirPaymentIntent(String paymentIntentId) throws StripeException {
+        return PaymentIntent.retrieve(paymentIntentId);
+    }
+
+    /**
+     * Crea un PaymentMethod amb les dades de targeta i confirma el PaymentIntent server-side.
+     */
+    public PaymentIntent confirmarAmbTargeta(String paymentIntentId, String cardNumber, Long expMonth, Long expYear, String cvc) throws StripeException {
+        PaymentMethodCreateParams pmParams = PaymentMethodCreateParams.builder()
+                .setType(PaymentMethodCreateParams.Type.CARD)
+                .setCard(PaymentMethodCreateParams.CardDetails.builder()
+                        .setNumber(cardNumber)
+                        .setExpMonth(expMonth)
+                        .setExpYear(expYear)
+                        .setCvc(cvc)
+                        .build())
+                .build();
+
+        PaymentMethod pm = PaymentMethod.create(pmParams);
+
+        PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
+        PaymentIntentConfirmParams confirmParams = PaymentIntentConfirmParams.builder()
+                .setPaymentMethod(pm.getId())
+                .build();
+        return intent.confirm(confirmParams);
+    }
+
+    /**
+     * Crea una sessió de Stripe Checkout (mètode anterior, conservat per compatibilitat).
      */
     public String crearSessioCheckout(Long competicioId, String competicioNom, Double preuEuros, String usuariEmail) throws StripeException {
         long preuCentims = Math.round(preuEuros * 100);
@@ -70,3 +125,4 @@ public class StripeService {
         return Session.retrieve(sessionId);
     }
 }
+

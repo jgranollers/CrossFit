@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagament Inscripció - PateixFit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        .pay-input {
+            background: #1a1a2e;
+            border: 1px solid var(--border-dark);
+            color: var(--text-light);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .pay-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0,255,136,0.15);
+        }
+        .pay-input::placeholder { color: #555; }
+        .pay-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+        .card-brand {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem;
+            opacity: 0.7;
+        }
+        #submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <div class="avatar" style="display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-credit-card me-2"></i>Pagament</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+
+                        <!-- Error flash -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                        <!-- Resum de la compra -->
+                        <div class="card mb-3" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-trophy me-2" style="color: var(--accent-green);"></i>
+                                    Resum de la inscripció
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: var(--text-muted);" th:text="${competicio.nom}">Competició</span>
+                                    <strong style="color: var(--accent-blue); font-size: 1.2rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                                <hr style="border-color: var(--border-dark); margin: 0.75rem 0;">
+                                <div class="d-flex justify-content-between">
+                                    <strong style="color: var(--text-light);">Total</strong>
+                                    <strong style="color: var(--accent-green); font-size: 1.1rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulari de targeta -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1.5rem;">
+                                    <i class="fas fa-lock me-2" style="color: var(--accent-green);"></i>
+                                    Dades de la targeta
+                                </h5>
+
+                                <form id="payment-form" method="post"
+                                      th:action="@{'/competiciones/' + ${competicioId} + '/inscripcio/pagament'}">
+                                    <input type="hidden" name="paymentIntentId" th:value="${paymentIntentId}" />
+
+                                    <!-- Número de targeta -->
+                                    <div class="mb-3">
+                                        <label class="pay-label">Número de targeta</label>
+                                        <div style="position: relative;">
+                                            <input type="text" name="cardNumber" class="pay-input" id="cardNumber"
+                                                   placeholder="1234 5678 9012 3456"
+                                                   maxlength="19" autocomplete="cc-number" required />
+                                            <span class="card-brand" id="cardBrand"><i class="fas fa-credit-card"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Data caducitat + CVC -->
+                                    <div class="row mb-3">
+                                        <div class="col-4">
+                                            <label class="pay-label">Mes</label>
+                                            <select name="expMonth" class="pay-input" required>
+                                                <option value="">MM</option>
+                                                <option value="1">01</option>
+                                                <option value="2">02</option>
+                                                <option value="3">03</option>
+                                                <option value="4">04</option>
+                                                <option value="5">05</option>
+                                                <option value="6">06</option>
+                                                <option value="7">07</option>
+                                                <option value="8">08</option>
+                                                <option value="9">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="pay-label">Any</label>
+                                            <select name="expYear" class="pay-input" required>
+                                                <option value="">AAAA</option>
+                                                <option value="2026">2026</option>
+                                                <option value="2027">2027</option>
+                                                <option value="2028">2028</option>
+                                                <option value="2029">2029</option>
+                                                <option value="2030">2030</option>
+                                                <option value="2031">2031</option>
+                                                <option value="2032">2032</option>
+                                                <option value="2033">2033</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="pay-label">CVC</label>
+                                            <input type="text" name="cvc" class="pay-input"
+                                                   placeholder="123" maxlength="4"
+                                                   autocomplete="cc-csc" required />
+                                        </div>
+                                    </div>
+
+                                    <button id="submit-btn" class="btn btn-primary w-100 mt-2" type="submit">
+                                        <i class="fas fa-lock me-2"></i>
+                                        Pagar <span th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</span>
+                                    </button>
+                                </form>
+
+                                <div class="d-flex align-items-center justify-content-center gap-2 mt-3"
+                                     style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="fas fa-shield-alt" style="color: var(--accent-green);"></i>
+                                    <span>Pagament segur via Stripe (mode test)</span>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a th:href="@{'/competiciones/' + ${competicioId}}"
+                                       style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+                                        <i class="fas fa-arrow-left me-1"></i> Cancel·lar i tornar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Targetes de test -->
+                        <div class="card mt-3" style="background-color: rgba(255,255,255,0.03); border: 1px dashed var(--border-dark);">
+                            <div class="card-body p-3">
+                                <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <strong style="color: var(--accent-green);">Mode test</strong> — Usa aquestes targetes:
+                                    <div class="mt-1"><code style="color: var(--text-light);">4242 4242 4242 4242</code> — Pagament OK (Visa)</div>
+                                    <div><code style="color: var(--text-light);">5555 5555 5555 4444</code> — Pagament OK (Mastercard)</div>
+                                    <div><code style="color: var(--text-light);">4000 0000 0000 9995</code> — Targeta declinada</div>
+                                    <div style="margin-top: 0.3rem;">Data: qualsevol futura · CVC: qualsevol 3 dígits</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Formatejar número de targeta amb espais
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            var val = e.target.value.replace(/\D/g, '').substring(0, 16);
+            var formatted = val.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = formatted;
+
+            // Detectar marca
+            var brand = document.getElementById('cardBrand');
+            if (val.startsWith('4')) brand.innerHTML = '<i class="fab fa-cc-visa" style="color:#1a1f71"></i>';
+            else if (val.startsWith('5')) brand.innerHTML = '<i class="fab fa-cc-mastercard" style="color:#eb001b"></i>';
+            else if (val.startsWith('3')) brand.innerHTML = '<i class="fab fa-cc-amex" style="color:#2e77bc"></i>';
+            else brand.innerHTML = '<i class="fas fa-credit-card"></i>';
+        });
+
+        // Deshabilitar botó al submit
+        document.getElementById('payment-form').addEventListener('submit', function() {
+            var btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processant pagament...';
+        });
+    </script>
+</body>
+</html>
+            color: #ff6b6b;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        #payment-message.visible { display: block; }
+        #submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+        .spinner {
+            display: inline-block;
+            width: 1rem; height: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <div class="avatar" style="display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-credit-card me-2"></i>Pagament</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+
+                        <!-- Resum de la compra -->
+                        <div class="card mb-3" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-trophy me-2" style="color: var(--accent-green);"></i>
+                                    Resum de la inscripció
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: var(--text-muted);" th:text="${competicio.nom}">Competició</span>
+                                    <strong style="color: var(--accent-blue); font-size: 1.2rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                                <hr style="border-color: var(--border-dark); margin: 0.75rem 0;">
+                                <div class="d-flex justify-content-between">
+                                    <strong style="color: var(--text-light);">Total</strong>
+                                    <strong style="color: var(--accent-green); font-size: 1.1rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulari de pagament Stripe embedded -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1.5rem;">
+                                    <i class="fas fa-lock me-2" style="color: var(--accent-green);"></i>
+                                    Dades de pagament
+                                </h5>
+
+                                <form id="payment-form">
+                                    <div id="payment-element"></div>
+                                    <div id="payment-message"></div>
+                                    <button id="submit-btn" class="btn btn-primary w-100 mt-2" type="submit">
+                                        <span id="btn-spinner" class="spinner d-none"></span>
+                                        <span id="btn-text">
+                                            <i class="fas fa-lock me-2"></i>
+                                            Pagar <span th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</span>
+                                        </span>
+                                    </button>
+                                </form>
+
+                                <div class="d-flex align-items-center justify-content-center gap-2 mt-3"
+                                     style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="fas fa-shield-alt" style="color: var(--accent-green);"></i>
+                                    <span>Pagament segur via Stripe</span>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a th:href="@{'/competiciones/' + ${competicioId}}"
+                                       style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+                                        <i class="fas fa-arrow-left me-1"></i> Cancel·lar i tornar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Targetes de test -->
+                        <div class="card mt-3" style="background-color: rgba(255,255,255,0.03); border: 1px dashed var(--border-dark);">
+                            <div class="card-body p-3">
+                                <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <strong style="color: var(--accent-green);">Mode test</strong> — Usa aquestes targetes:
+                                    <div class="mt-1"><code style="color: var(--text-light);">4242 4242 4242 4242</code> — Pagament OK</div>
+                                    <div><code style="color: var(--text-light);">4000 0000 0000 9995</code> — Targeta declinada</div>
+                                    <div style="margin-top: 0.3rem;">Data: qualsevol futura · CVC: qualsevol 3 dígits</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script th:inline="javascript">
+        const stripePublicKey = /*[[${stripePublicKey}]]*/ '';
+        const clientSecret    = /*[[${clientSecret}]]*/ '';
+        const competicioId    = /*[[${competicioId}]]*/ 0;
+
+        const stripe = Stripe(stripePublicKey);
+
+        const appearance = {
+            theme: 'night',
+            variables: {
+                colorPrimary: '#00ff88',
+                colorBackground: '#1a1a2e',
+                colorText: '#e0e0e0',
+                colorDanger: '#ff6b6b',
+                fontFamily: 'system-ui, sans-serif',
+                spacingUnit: '4px',
+                borderRadius: '8px',
+            }
+        };
+
+        const elements = stripe.elements({ appearance, clientSecret });
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        const form    = document.getElementById('payment-form');
+        const btn     = document.getElementById('submit-btn');
+        const spinner = document.getElementById('btn-spinner');
+        const msgEl   = document.getElementById('payment-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading(true);
+
+            const returnUrl = window.location.origin
+                + '/competiciones/' + competicioId + '/inscripcio/exit';
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: { return_url: returnUrl }
+            });
+
+            if (error) {
+                msgEl.textContent = error.message;
+                msgEl.classList.add('visible');
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            btn.disabled = loading;
+            spinner.classList.toggle('d-none', !loading);
+        }
+    </script>
+</body>
+</html>
+            cursor: pointer;
+            padding: 1rem;
+            border: 2px solid var(--border-dark);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.03);
+        }
+        .card-option:hover {
+            border-color: var(--accent-green);
+            background: rgba(0,255,136,0.05);
+        }
+        .card-option.selected {
+            border-color: var(--accent-green);
+            background: rgba(0,255,136,0.08);
+            box-shadow: 0 0 0 1px var(--accent-green);
+        }
+        .card-option input[type="radio"] { display: none; }
+        .card-icon { font-size: 1.5rem; margin-right: 0.75rem; }
+        .card-number { font-family: 'Courier New', monospace; color: var(--text-light); font-size: 0.95rem; }
+        .card-label { color: var(--text-muted); font-size: 0.8rem; }
+        .card-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge-ok { background: rgba(0,255,136,0.15); color: var(--accent-green); }
+        .badge-fail { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+        #submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <div class="avatar" style="display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-credit-card me-2"></i>Pagament</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+
+                        <!-- Error flash -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                        <!-- Resum de la compra -->
+                        <div class="card mb-3" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-trophy me-2" style="color: var(--accent-green);"></i>
+                                    Resum de la inscripció
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: var(--text-muted);" th:text="${competicio.nom}">Competició</span>
+                                    <strong style="color: var(--accent-blue); font-size: 1.2rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                                <hr style="border-color: var(--border-dark); margin: 0.75rem 0;">
+                                <div class="d-flex justify-content-between">
+                                    <strong style="color: var(--text-light);">Total</strong>
+                                    <strong style="color: var(--accent-green); font-size: 1.1rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selecció de targeta -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1.5rem;">
+                                    <i class="fas fa-lock me-2" style="color: var(--accent-green);"></i>
+                                    Selecciona mètode de pagament
+                                </h5>
+
+                                <form id="payment-form" method="post"
+                                      th:action="@{'/competiciones/' + ${competicioId} + '/inscripcio/pagament'}">
+                                    <input type="hidden" name="paymentIntentId" th:value="${paymentIntentId}" />
+
+                                    <label class="card-option d-flex align-items-center selected" onclick="selectCard(this, 'visa')">
+                                        <input type="radio" name="cardType" value="visa" checked />
+                                        <span class="card-icon">💳</span>
+                                        <div class="flex-grow-1">
+                                            <div class="card-number">4242 4242 4242 4242</div>
+                                            <div class="card-label">Visa — Pagament OK</div>
+                                        </div>
+                                        <span class="card-badge badge-ok">✓ OK</span>
+                                    </label>
+
+                                    <label class="card-option d-flex align-items-center" onclick="selectCard(this, 'mastercard')">
+                                        <input type="radio" name="cardType" value="mastercard" />
+                                        <span class="card-icon">💳</span>
+                                        <div class="flex-grow-1">
+                                            <div class="card-number">5555 5555 5555 4444</div>
+                                            <div class="card-label">Mastercard — Pagament OK</div>
+                                        </div>
+                                        <span class="card-badge badge-ok">✓ OK</span>
+                                    </label>
+
+                                    <label class="card-option d-flex align-items-center" onclick="selectCard(this, 'visa_debit')">
+                                        <input type="radio" name="cardType" value="visa_debit" />
+                                        <span class="card-icon">💳</span>
+                                        <div class="flex-grow-1">
+                                            <div class="card-number">4000 0566 5566 5556</div>
+                                            <div class="card-label">Visa Debit — Pagament OK</div>
+                                        </div>
+                                        <span class="card-badge badge-ok">✓ OK</span>
+                                    </label>
+
+                                    <label class="card-option d-flex align-items-center" onclick="selectCard(this, 'declined')">
+                                        <input type="radio" name="cardType" value="declined" />
+                                        <span class="card-icon">🚫</span>
+                                        <div class="flex-grow-1">
+                                            <div class="card-number">4000 0000 0000 0002</div>
+                                            <div class="card-label">Targeta declinada — Error</div>
+                                        </div>
+                                        <span class="card-badge badge-fail">✗ Fail</span>
+                                    </label>
+
+                                    <button id="submit-btn" class="btn btn-primary w-100 mt-3" type="submit">
+                                        <i class="fas fa-lock me-2"></i>
+                                        Pagar <span th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</span>
+                                    </button>
+                                </form>
+
+                                <div class="d-flex align-items-center justify-content-center gap-2 mt-3"
+                                     style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="fas fa-shield-alt" style="color: var(--accent-green);"></i>
+                                    <span>Pagament segur via Stripe (mode test)</span>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a th:href="@{'/competiciones/' + ${competicioId}}"
+                                       style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+                                        <i class="fas fa-arrow-left me-1"></i> Cancel·lar i tornar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectCard(el, type) {
+            document.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            el.querySelector('input[type="radio"]').checked = true;
+        }
+        document.getElementById('payment-form').addEventListener('submit', function() {
+            var btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processant...';
+        });
+    </script>
+</body>
+</html>

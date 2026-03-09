@@ -96,7 +96,8 @@
                                         <label for="dataCompeticio" class="form-label">
                                             <i class="fas fa-calendar"></i> Data de la Competició
                                         </label>
-                                        <input type="date" class="form-control" th:field="*{dataCompeticio}" th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                                        <input type="date" class="form-control" th:field="*{dataCompeticio}"
+                                               th:attr="min=${competicion.id == null ? #temporals.format(#temporals.createNow(), 'yyyy-MM-dd') : null}" required>
                                         <div class="form-error" th:if="${#fields.hasErrors('dataCompeticio')}" th:errors="*{dataCompeticio}"></div>
                                     </div>
 

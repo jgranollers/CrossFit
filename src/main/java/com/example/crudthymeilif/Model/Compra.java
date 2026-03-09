@@ -35,6 +35,9 @@ public class Compra {
     @Column(name = "estat")
     private String estat; // PENDENT, COMPLETAT, CANCEL·LAT
 
+    @Column(name = "categoria_inscripcio")
+    private String categoriaInscripcio; // RX, Scaled, Masters
+
     public Long getId() {
         return id;
     }
@@ -97,5 +100,13 @@ public class Compra {
 
     public void setEstat(String estat) {
         this.estat = estat;
+    }
+
+    public String getCategoriaInscripcio() {
+        return categoriaInscripcio;
+    }
+
+    public void setCategoriaInscripcio(String categoriaInscripcio) {
+        this.categoriaInscripcio = categoriaInscripcio;
     }
 }

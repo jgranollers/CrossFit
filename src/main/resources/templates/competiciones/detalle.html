@@ -125,7 +125,7 @@
                                             <i class="fas fa-chair fa-lg me-3"></i>
                                             <div>
                                                 <div class="info-label">Places disponibles</div>
-                                                <div class="info-value" th:text="${competicion != null ? (competicion.maxParticipants - numInscritos) : '-'}">-</div>
+                                                <div class="info-value" th:text="${competicion != null ? (competicion.maxParticipants != null ? (competicion.maxParticipants - numInscritos) : 'Sense límit') : '-'}">-</div>
                                             </div>
                                         </div>
                                     </div>
@@ -205,6 +205,17 @@
                                         </div>
 
                                         <form method="post" th:action="@{'/competiciones/' + ${competicion.id} + '/inscripcio/iniciar'}">
+                                            <div class="mb-3">
+                                                <label style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-bottom: 0.4rem;">
+                                                    <i class="fas fa-layer-group me-1"></i> Rang per a aquest torneig
+                                                </label>
+                                                <select name="categoriaInscripcio" required
+                                                        style="width:100%; background:#1a1a2e; border:1px solid var(--border-dark); color:var(--text-light); border-radius:8px; padding:0.5rem 0.75rem; font-size:0.9rem;">
+                                                    <option value="RX" th:selected="${concursantActual != null and concursantActual.categoria == 'RX'}">RX</option>
+                                                    <option value="Scaled" th:selected="${concursantActual != null and concursantActual.categoria == 'Scaled'}">Scaled</option>
+                                                    <option value="Masters" th:selected="${concursantActual != null and concursantActual.categoria == 'Masters'}">Masters</option>
+                                                </select>
+                                            </div>
                                             <button type="submit" class="btn btn-primary w-100 mb-2">
                                                 <i class="fas fa-user-plus me-1"></i> Inscriure'm
                                             </button>
@@ -240,13 +251,14 @@
                                                 <th style="color: white;">País</th>
                                                 <th style="color: white;">Nom</th>
                                                 <th style="color: white;">Correu</th>
+                                                <th style="color: white;">Rang</th>
                                                 <th style="color: white;">Data Inscripció</th>
                                                 <th style="color: white;">Estat</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr th:if="${compras == null || compras.isEmpty()}" style="border-bottom-color: var(--border-dark);">
-                                                <td colspan="5" style="color: var(--text-muted); text-align: center;">No hi ha inscripcions encara</td>
+                                                <td colspan="6" style="color: var(--text-muted); text-align: center;">No hi ha inscripcions encara</td>
                                             </tr>
                                             <tr th:each="compra : ${compras}" style="border-bottom-color: var(--border-dark);">
                                                 <td style="text-align: center;">
@@ -255,9 +267,10 @@
                                                          th:alt="${compra.usuari.nacionalitat}" width="24" height="18"
                                                          style="border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
                                                 </td>
-                                                <td style="color: var(--text-light);" th:text="${compra.concursant != null ? compra.concursant.nom + ' ' + compra.concursant.cognom : compra.usuari.nom}">Nom</td>
-                                                <td style="color: var(--text-muted);" th:text="${compra.concursant != null ? compra.concursant.email : compra.usuari.correu}">correu@example.com</td>
-                                                <td style="color: var(--text-muted);" th:text="${#temporals.format(compra.dataCompra, 'dd/MM/yyyy')}">-</td>
+                                                <td style="color: var(--text-light);" th:text="${compra.concursant != null ? compra.concursant.nom + ' ' + compra.concursant.cognom : (compra.usuari != null ? compra.usuari.nom : '-')}">Nom</td>
+                                                <td style="color: var(--text-muted);" th:text="${compra.concursant != null ? compra.concursant.email : (compra.usuari != null ? compra.usuari.correu : '-')}">correu@example.com</td>
+                                                <td><span class="card-badge badge-green" th:text="${compra.categoriaInscripcio ?: '-'}">RX</span></td>
+                                                <td style="color: var(--text-muted);" th:text="${compra.dataCompra != null ? #temporals.format(compra.dataCompra, 'dd/MM/yyyy') : '-'}">-</td>
                                                 <td>
                                                     <span class="card-badge" 
                                                           th:classappend="${compra.estat == 'COMPLETAT' ? 'badge-green' : (compra.estat == 'PENDENT' ? 'badge-yellow' : 'badge-red')}"

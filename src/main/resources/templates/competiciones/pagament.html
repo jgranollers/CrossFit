@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagament Inscripció - PateixFit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        #payment-message {
+            color: #ff6b6b;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        #payment-message.visible { display: block; }
+        #submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+        .spinner {
+            display: inline-block;
+            width: 1rem; height: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar col-auto">
+            <div class="sidebar-title">
+                <i class="fas fa-dumbbell"></i>
+                PateixFit
+            </div>
+            <nav class="sidebar-section">
+                <a href="/competiciones" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i> Competicions
+                </a>
+                <a href="/concursants" class="sidebar-link">
+                    <i class="fas fa-users"></i> Concursants
+                </a>
+                <a href="/resultats" class="sidebar-link">
+                    <i class="fas fa-chart-bar"></i> Resultats Competicions
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content flex-grow-1">
+            <div class="top-bar mb-4">
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="profile-section">
+                    <div class="avatar" style="display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-user" style="font-size:1.2rem; color: var(--accent-green);"></i>
+                    </div>
+                    <a href="/perfil" class="btn-profile">Perfil</a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1 class="page-title"><i class="fas fa-credit-card me-2"></i>Pagament</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+
+                        <!-- Error flash -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                        <!-- Resum de la compra -->
+                        <div class="card mb-3" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-trophy me-2" style="color: var(--accent-green);"></i>
+                                    Resum de la inscripció
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="color: var(--text-muted);" th:text="${competicio.nom}">Competició</span>
+                                    <strong style="color: var(--accent-blue); font-size: 1.2rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                                <hr style="border-color: var(--border-dark); margin: 0.75rem 0;">
+                                <div class="d-flex justify-content-between">
+                                    <strong style="color: var(--text-light);">Total</strong>
+                                    <strong style="color: var(--accent-green); font-size: 1.1rem;"
+                                            th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulari de pagament Stripe Elements -->
+                        <div class="card" style="background-color: var(--card-dark); border: 1px solid var(--border-dark);">
+                            <div class="card-body p-4">
+                                <h5 style="color: var(--text-light); margin-bottom: 1.5rem;">
+                                    <i class="fas fa-lock me-2" style="color: var(--accent-green);"></i>
+                                    Dades de pagament
+                                </h5>
+
+                                <form id="payment-form">
+                                    <div id="payment-element"></div>
+                                    <div id="payment-message"></div>
+                                    <button id="submit-btn" class="btn btn-primary w-100 mt-2" type="submit">
+                                        <span id="btn-spinner" class="spinner d-none"></span>
+                                        <span id="btn-text">
+                                            <i class="fas fa-lock me-2"></i>
+                                            Pagar <span th:text="'€ ' + ${#numbers.formatDecimal(preu, 1, 2)}">€ 0.00</span>
+                                        </span>
+                                    </button>
+                                </form>
+
+                                <div class="d-flex align-items-center justify-content-center gap-2 mt-3"
+                                     style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="fas fa-shield-alt" style="color: var(--accent-green);"></i>
+                                    <span>Pagament segur via Stripe</span>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a th:href="@{'/competiciones/' + ${competicioId}}"
+                                       style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+                                        <i class="fas fa-arrow-left me-1"></i> Cancel·lar i tornar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Targetes de test -->
+                        <div class="card mt-3" style="background-color: rgba(255,255,255,0.03); border: 1px dashed var(--border-dark);">
+                            <div class="card-body p-3">
+                                <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <strong style="color: var(--accent-green);">Mode test</strong> — Usa aquestes targetes:
+                                    <div class="mt-1"><code style="color: var(--text-light);">4242 4242 4242 4242</code> — Pagament OK</div>
+                                    <div><code style="color: var(--text-light);">4000 0000 0000 9995</code> — Targeta declinada</div>
+                                    <div style="margin-top: 0.3rem;">Data: qualsevol futura · CVC: qualsevol 3 dígits</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script th:inline="javascript">
+        const stripePublicKey = /*[[${stripePublicKey}]]*/ '';
+        const clientSecret    = /*[[${clientSecret}]]*/ '';
+        const competicioId    = /*[[${competicioId}]]*/ 0;
+
+        const stripe = Stripe(stripePublicKey);
+
+        const appearance = {
+            theme: 'night',
+            variables: {
+                colorPrimary: '#00ff88',
+                colorBackground: '#1a1a2e',
+                colorText: '#e0e0e0',
+                colorDanger: '#ff6b6b',
+                fontFamily: 'system-ui, sans-serif',
+                spacingUnit: '4px',
+                borderRadius: '8px',
+            }
+        };
+
+        const elements = stripe.elements({ appearance, clientSecret });
+        const paymentElement = elements.create('payment', {
+            wallets: { link: 'never' }
+        });
+        paymentElement.mount('#payment-element');
+
+        const form    = document.getElementById('payment-form');
+        const btn     = document.getElementById('submit-btn');
+        const spinner = document.getElementById('btn-spinner');
+        const msgEl   = document.getElementById('payment-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading(true);
+
+            const returnUrl = window.location.origin
+                + '/competiciones/' + competicioId + '/inscripcio/exit';
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: { return_url: returnUrl }
+            });
+
+            if (error) {
+                msgEl.textContent = error.message;
+                msgEl.classList.add('visible');
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            btn.disabled = loading;
+            spinner.classList.toggle('d-none', !loading);
+        }
+    </script>
+</body>
+</html>

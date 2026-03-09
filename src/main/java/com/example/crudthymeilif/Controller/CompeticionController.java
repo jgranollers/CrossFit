@@ -7,8 +7,14 @@ import com.example.crudthymeilif.Model.Usuari;
 import com.example.crudthymeilif.Service.ConcursantService;
 import com.example.crudthymeilif.repository.CompeticionRepository;
 import com.example.crudthymeilif.repository.CompraRepository;
+import com.example.crudthymeilif.repository.PuntuacioRepository;
+import com.example.crudthymeilif.repository.ResultatRepository;
 import com.example.crudthymeilif.repository.UsuariRepository;
+import com.example.crudthymeilif.repository.WodCompletRepository;
 import com.example.crudthymeilif.repository.WodRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -40,6 +46,18 @@ public class CompeticionController {
 
     @Autowired
     private WodRepository wodRepository;
+
+    @Autowired
+    private PuntuacioRepository puntuacioRepository;
+
+    @Autowired
+    private ResultatRepository resultatRepository;
+
+    @Autowired
+    private WodCompletRepository wodCompletRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @GetMapping
     public String listaCompeticiones(Model model) {
@@ -124,18 +142,54 @@ public class CompeticionController {
     }
 
     @PostMapping
-    public String guardarCompeticion(@Valid @ModelAttribute Competicion competicion, BindingResult bindingResult, Model model) {
+    @Transactional
+    public String guardarCompeticion(@Valid @ModelAttribute Competicion competicionForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("competicion", competicion);
+            model.addAttribute("competicion", competicionForm);
             return "competiciones/formulari";
         }
-        competicionRepository.save(competicion);
+        if (competicionForm.getId() != null) {
+            // EDIT: load existing entity to avoid orphanRemoval deleting all wods
+            Optional<Competicion> opt = competicionRepository.findById(competicionForm.getId());
+            if (opt.isPresent()) {
+                Competicion existing = opt.get();
+                existing.setNom(competicionForm.getNom());
+                existing.setTipusCompeticio(competicionForm.getTipusCompeticio());
+                existing.setDataCompeticio(competicionForm.getDataCompeticio());
+                existing.setLocalitat(competicionForm.getLocalitat());
+                existing.setDescripcio(competicionForm.getDescripcio());
+                existing.setPreuInscripcio(competicionForm.getPreuInscripcio());
+                existing.setMaxParticipants(competicionForm.getMaxParticipants());
+                existing.setEstat(competicionForm.getEstat());
+                competicionRepository.save(existing);
+                return "redirect:/competiciones";
+            }
+        }
+        competicionRepository.save(competicionForm);
         return "redirect:/competiciones";
     }
 
     @PostMapping("/{id}/eliminar")
+    @Transactional
     public String eliminarCompeticion(@PathVariable Long id) {
-        competicionRepository.deleteById(id);
+        if (!competicionRepository.existsById(id)) return "redirect:/competiciones";
+
+        // Disable FK checks to handle all cascading dependencies cleanly
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
+        try {
+            entityManager.createNativeQuery("DELETE FROM puntuacio WHERE competicio_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM wod_complet WHERE wod_id IN (SELECT id FROM wod WHERE competicion_id = :id)").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM resultat WHERE competicio_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM compra WHERE competicio_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM exercici WHERE dificultat_wod_id IN (SELECT d.id FROM dificultat_wod d JOIN wod w ON d.wod_id = w.id WHERE w.competicion_id = :id)").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM dificultat_wod WHERE wod_id IN (SELECT id FROM wod WHERE competicion_id = :id)").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM equip WHERE competicio_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM wod WHERE competicion_id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM competicion WHERE id = :id").setParameter("id", id).executeUpdate();
+        } finally {
+            entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
+        }
+
         return "redirect:/competiciones";
     }
 }
